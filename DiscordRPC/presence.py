@@ -43,9 +43,9 @@ class RPC(metaclass=ABCMeta):
         """
         platform=sys.platform
         if platform == 'win32':
-            return WinDiscordIpcClient(app_id)
+            return DiscordWindows(app_id)
         else:
-            return UnixDiscordIpcClient(app_id)
+            return DiscordUnix(app_id)
 
     @abstractmethod
     def _connect(self):
@@ -181,7 +181,7 @@ class RPC(metaclass=ABCMeta):
         print("Succsessfully set RPC")
 
 
-class WinDiscordIpcClient(RPC):
+class DiscordWindows(RPC):
 
     _pipe_pattern = R'\\?\pipe\discord-ipc-{}'
 
@@ -210,7 +210,7 @@ class WinDiscordIpcClient(RPC):
         self._f.close()
 
 
-class UnixDiscordIpcClient(RPC):
+class DiscordUnix(RPC):
 
     def _connect(self):
         self._sock = socket.socket(socket.AF_UNIX)
