@@ -1,3 +1,4 @@
+[![Visistors](https://visitor-badge.glitch.me/badge?page_id=LyQuid12.discord-rpc)](https://github.com/EterNomm/Chathon)
 [![Discord](https://img.shields.io/discord/887650006977347594?label=EterNomm&logo=discord)](https://discord.gg/qpT2AeYZRN)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/discord-rpc?label=PyPI%20Downloads&logo=pypi)](https://pypi.org/project/discord-rpc)
 [![PyPI](https://img.shields.io/pypi/v/discord-rpc?label=PyPI%20Version&logo=pypi)](https://pypi.org/project/discord-rpc)
@@ -18,8 +19,7 @@ pip install discord-rpc
 import DiscordRPC
 import time
 
-app_id = 'app id'  # Application ID (cannot int)
-rpc = DiscordRPC.RPC.Set_ID(app_id=app_id)
+rpc = DiscordRPC.RPC.Set_ID(app_id="your app id") # Application ID must string
 
 while True:
     rpc.set_activity(
