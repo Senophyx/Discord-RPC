@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 import re
 
-with open('README.md') as f:
-    long_description = f.read()
+# with open('README.md') as f:
+#     long_description = f.read()
 
 version = ''
 with open('DiscordRPC/__init__.py') as f:
@@ -26,13 +26,13 @@ setup(
     author='LyQuid',
     author_email='lyquidpersonal@gmail.com',
     description = 'An Python wrapper for Discord RPC API',
-    long_description=long_description,
+    long_description="long_description",
     long_description_content_type='text/markdown',
     license='Apache License 2.0',
-    url='https://github.com/EterNomm/discord-rpc',
+    url='https://github.com/LyQuid12/discord-rpc',
     project_urls={
         "Discord": "https://discord.gg/qpT2AeYZRN",
-        "Issue tracker": "https://github.com/EterNomm/discord-rpc/issues",
+        "Issue tracker": "https://github.com/LyQuid12/discord-rpc/issues",
     },
     packages=find_packages(),
     include_package_data=True,
@@ -42,6 +42,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
+        'Operating System :: Android',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS',
         'Operating System :: POSIX :: Linux',
