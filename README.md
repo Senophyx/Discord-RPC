@@ -17,22 +17,20 @@ pip install discord-rpc
 ## Quick example
 ```py
 import DiscordRPC
-import time
+import time 
 
-rpc = DiscordRPC.RPC.Set_ID(app_id="your app id") # Application ID must string
+rpc = DiscordRPC.RPC.Set_ID(app_id="your app id") # Application ID must string 
 
 while True:
     rpc.set_activity(
-      state="up to you", 
-      details="up to you", 
-      timestamp=rpc.timestamp(), 
-      large_text="Competitive", 
-      small_text="Radiant", 
-      large_image="Valorant", 
-      small_image="Radiant_logo"
+      state="Rank : Radiant",
+      details="Competitive",
+      timestamp=rpc.timestamp()
     )
     time.sleep(600) # to update the PC, recommended: every 10 minutes or 600 seconds
 ```
+
+More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
 
 ## Other
 <details>
