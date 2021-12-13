@@ -1,4 +1,4 @@
-from .rpc import *
+from .presence import *
 
 __title__ = "Discord-RPC"
 __version__ = "1.0"
