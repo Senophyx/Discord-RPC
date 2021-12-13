@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 import re
 
-# with open('README.md') as f:
-#     long_description = f.read()
+with open('README.md') as f:
+    long_description = f.read()
 
 version = ''
 with open('DiscordRPC/__init__.py') as f:
@@ -26,7 +26,7 @@ setup(
     author='LyQuid',
     author_email='lyquidpersonal@gmail.com',
     description = 'An Python wrapper for Discord RPC API',
-    long_description="long_description",
+    long_description=long_description,
     long_description_content_type='text/markdown',
     license='Apache License 2.0',
     url='https://github.com/LyQuid12/discord-rpc',
