@@ -129,10 +129,11 @@ class RPC(metaclass=ABCMeta):
         state:str, 
         details:str,
         timestamp, 
-        small_text:str, 
-        large_text:str,
+        small_text:str=None, 
+        large_text:str=None,
         small_image:str=None, 
-        large_image:str=None
+        large_image:str=None,
+        buttons=None
     ):
 
         r"""
@@ -148,11 +149,15 @@ class RPC(metaclass=ABCMeta):
         - large_image: `str` | must be the same as image name in application assets
         """
         if large_image == None:
-           large_image = 'Not_Set'
-           print("Warning, Large Image not set, but RPC will still working properly")
+           large_image = 'null'
         if small_image == None:
-            small_image = 'Not_Set'
-            print("Warning, Small Image not set, but RPC will still working properly")
+            small_image = 'null'
+        if small_text == None:
+            small_text = 'null'
+        if large_text == None:
+            large_text = 'null'
+        if buttons == None:
+            buttons = 'null'
         else:
             pass
 
@@ -167,7 +172,8 @@ class RPC(metaclass=ABCMeta):
                 "small_image": str(small_image),
                 "large_text": large_text,
                 "large_image": str(large_image)
-            }
+            },
+            "buttons": buttons,
         }
 
         data = {
