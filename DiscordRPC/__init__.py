@@ -1,5 +1,6 @@
 from .presence import *
 from .button import button
+from .exceptions import *
 
 __title__ = "Discord-RPC"
 __version__ = "2.0"
