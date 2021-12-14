@@ -212,7 +212,7 @@ class RPC(metaclass=ABCMeta):
         if output['evt'] == "ERROR":
             raise ActivityError
         else:
-            print("Succsessfully set RPC")
+            print("Successfully set RPC")
 
         return op, output
 
