@@ -19,7 +19,7 @@ pip install discord-rpc
 import DiscordRPC
 import time 
 
-rpc = DiscordRPC.RPC.Set_ID(app_id="your app id") # Application ID must string 
+rpc = DiscordRPC.RPC.Set_ID(app_id=12345678910)
 
 while True:
     rpc.set_activity(
@@ -37,8 +37,7 @@ More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
     <summary>Plan</summary>
     <br>
     <ul>
-        <li>RPC Button</li>
-        <p>Added button feature to RPC</p>
+        <li>-</li>
     </ul>
 </details>
 
