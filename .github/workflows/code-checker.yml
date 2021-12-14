@@ -20,6 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint `--ignore-=basic.py`
-        pylint `--ignore-=rpc-with-button.py`
         pylint `ls -R|grep .py$|xargs`
