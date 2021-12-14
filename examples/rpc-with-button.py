@@ -1,7 +1,7 @@
 import DiscordRPC
 import time 
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=919914790556672031) # Application ID must string
+rpc = DiscordRPC.RPC.Set_ID(app_id=1234567891011)
 
 button = DiscordRPC.button(
   button_one_label="Repository",
