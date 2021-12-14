@@ -40,7 +40,7 @@ class RPC(metaclass=ABCMeta):
         r"""
         A Classmethod to set applications ID
         """
-        app_id = f"{app_id}" # Because ID must be string, so I tricked with this. please don't insult me :v
+        app_id = str(app_id) # Because ID must be string, so I tricked with this.
         platform=sys.platform
         if platform == 'win32':
             return DiscordWindows(app_id)
