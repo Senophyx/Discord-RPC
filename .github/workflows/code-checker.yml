@@ -1,4 +1,4 @@
-name: Pylint
+name: Code-Checker
 
 on: workflow_dispatch
 
@@ -20,6 +20,5 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint `--disable=W basic.py`
-        pylint `--disable=W rpc-with-button.py`
+        pylint `--ignore=examples`
         pylint `ls -R|grep .py$|xargs`
