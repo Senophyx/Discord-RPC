@@ -8,6 +8,8 @@
 # Discord RPC
 An Python wrapper for Discord RPC API. Allow you to make own custom RPC
 
+[![Changelog](https://img.shields.io/badge/Discord--RPC-Changelog-informational?style=for-the-badge&logo=github)](https://gist.github.com/LyQuid12/019b77be3cca743c4ada423ccf80b836)
+
 ## Install
 - PyPI
 ```
