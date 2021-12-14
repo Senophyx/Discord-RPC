@@ -147,6 +147,7 @@ class RPC(metaclass=ABCMeta):
         - large_text: `str`
         - small_image: `str` | must be the same as image name in application assets
         - large_image: `str` | must be the same as image name in application assets
+        - buttons: `str` | use DiscordRPC.button() method
         """
         
         if large_image == None:
