@@ -235,7 +235,7 @@ class DiscordWindows(RPC):
             else:
                 break
         else:
-            raise DiscordNotOpened()
+            raise DiscordNotOpened
 
         self.path = path
 
@@ -267,7 +267,7 @@ class DiscordUnix(RPC):
             else:
                 break
         else:
-            raise DiscordNotOpened()
+            raise DiscordNotOpened
 
     @staticmethod
     def _get_pipe_pattern():
