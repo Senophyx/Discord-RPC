@@ -5,9 +5,11 @@ import os
 import socket
 import sys
 import struct
-import uuid
+from datetime import datetime
 import time
 from time import mktime
+
+from .exceptions import *
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
@@ -16,10 +18,6 @@ OP_PING = 3
 OP_PONG = 4
 
 logger = logging.getLogger(__name__)
-
-
-class DiscordIpcError(Exception):
-    pass
 
 
 class RPC(metaclass=ABCMeta):
@@ -34,6 +32,7 @@ class RPC(metaclass=ABCMeta):
         self.client_id = client_id
         self._connect()
         self._do_handshake()
+        self.get_output = None
         logger.info("connected via ID %s", client_id)
 
     @classmethod
@@ -41,6 +40,7 @@ class RPC(metaclass=ABCMeta):
         r"""
         A Classmethod to set applications ID
         """
+        app_id = f"{app_id}" # Because ID must be string, so I tricked with this. please don't insult me :v
         platform=sys.platform
         if platform == 'win32':
             return DiscordWindows(app_id)
@@ -126,15 +126,15 @@ class RPC(metaclass=ABCMeta):
 
     def set_activity(
         self, 
-        state:str, 
-        details:str,
-        timestamp, 
+        state:str=None, 
+        details:str=None,
+        timestamp=None, 
         small_text:str=None, 
         large_text:str=None,
         small_image:str=None, 
         large_image:str=None,
         buttons=None
-    ):
+    ): 
 
         r"""
         A method for set RPC activity
@@ -148,6 +148,7 @@ class RPC(metaclass=ABCMeta):
         - small_image: `str` | must be the same as image name in application assets
         - large_image: `str` | must be the same as image name in application assets
         """
+        
         if large_image == None:
            large_image = 'null'
         if small_image == None:
@@ -156,12 +157,15 @@ class RPC(metaclass=ABCMeta):
             small_text = 'null'
         if large_text == None:
             large_text = 'null'
-        if buttons == None:
-            buttons = 'null'
         else:
-            pass
+            if len(large_text) <= 3:
+                raise Error('"large text" must be at least above 3 characters')
 
-        act = {
+            if len(small_text) <= 3:
+                raise Error('"small text" must be at least above 3 characters')
+
+        if buttons == None:
+            act = {
             "state": state,
             "details": details,
             "timestamps": {
@@ -172,19 +176,49 @@ class RPC(metaclass=ABCMeta):
                 "small_image": str(small_image),
                 "large_text": large_text,
                 "large_image": str(large_image)
-            },
-            "buttons": buttons,
+            }
         }
+
+        else:
+            act = {
+                "state": state,
+                "details": details,
+                "timestamps": {
+                    "start": timestamp
+                },
+                "assets": {
+                    "small_text": small_text,
+                    "small_image": str(small_image),
+                    "large_text": large_text,
+                    "large_image": str(large_image)
+                },
+                "buttons": buttons,
+            }
 
         data = {
             'cmd': 'SET_ACTIVITY',
             'args': {'pid': os.getpid(),
                      'activity': act},
-            'nonce': str(uuid.uuid4())
+            'nonce': datetime.now().strftime("%D - %H:%M:%S")
         }
 
         self.send(data)
-        print("Succsessfully set RPC")
+
+        op, length = self._recv_header()
+        payload = self._recv_exactly(length)
+        output = json.loads(payload.decode('utf-8'))
+        self.get_output = output
+
+        if output['evt'] == "ERROR":
+            raise ActivityError
+        else:
+            print("Succsessfully set RPC")
+
+        return op, output
+
+    def output(self):
+        output = self.get_output
+        return output
 
 
 class DiscordWindows(RPC):
@@ -201,7 +235,7 @@ class DiscordWindows(RPC):
             else:
                 break
         else:
-            return DiscordIpcError("Failed to connect to Discord pipe")
+            raise DiscordNotOpened()
 
         self.path = path
 
@@ -233,7 +267,7 @@ class DiscordUnix(RPC):
             else:
                 break
         else:
-            return DiscordIpcError("Failed to connect to Discord pipe")
+            raise DiscordNotOpened()
 
     @staticmethod
     def _get_pipe_pattern():
