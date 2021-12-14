@@ -10,12 +10,12 @@ button = DiscordRPC.button(
   button_two_url="https://discord.gg/qpT2AeYZRN"
   )
 
-while True:
-    rpc.set_activity(
+rpc.set_activity(
       state="Made by LyQuid",
       details="Discord-RPC",
       timestamp=rpc.timestamp(),
       buttons=button
     )
-    print(rpc.output())
-    time.sleep(600) # to update the PC, recommended: every 10 minutes or 600 seconds
+
+while True:
+    time.sleep(600) # to update the RPC, recommended: every 10 minutes or 600 seconds
