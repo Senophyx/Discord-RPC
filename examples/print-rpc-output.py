@@ -10,12 +10,13 @@ button = DiscordRPC.button(
   button_two_url="https://discord.gg/qpT2AeYZRN"
   )
 
-while True:
-    rpc.set_activity(
+rpc.set_activity(
       state="Made by LyQuid",
       details="Discord-RPC",
       timestamp=rpc.timestamp(),
       buttons=button
     )
-    print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
+print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
+
+while True:
     time.sleep(600)
