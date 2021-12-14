@@ -1,7 +1,7 @@
 import DiscordRPC
 import time 
 
-rpc = DiscordRPC.RPC.Set_ID(app_id="your app id") # Application ID must string 
+rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
 
 while True:
     rpc.set_activity(
