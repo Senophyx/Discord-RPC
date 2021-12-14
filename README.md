@@ -30,7 +30,7 @@ rpc.set_activity(
     )
 
 while True:
-    time.sleep(600) # to update the PC, recommended: every 10 minutes or 600 seconds
+    time.sleep(600) # to update the RPC, recommended: every 10 minutes or 600 seconds
 ```
 
 More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
