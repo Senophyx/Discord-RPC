@@ -1,7 +1,7 @@
 import DiscordRPC
 import time 
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112) # Application ID must string
+rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
 
 # Upload your image(s) here:
 # https://discordapp.com/developers/applications/<APP ID>/rich-presence/assets
