@@ -23,7 +23,6 @@ rpc.set_activity(
       small_text="Github",
       buttons=button
     )
-print(rpc.output()) 
  
 while True:
     time.sleep(15)
