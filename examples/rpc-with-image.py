@@ -1,5 +1,4 @@
 import DiscordRPC
-import time 
 
 rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
 
@@ -23,6 +22,3 @@ rpc.set_activity(
       small_text="Github",
       buttons=button
     )
- 
-while True:
-    time.sleep(15)
