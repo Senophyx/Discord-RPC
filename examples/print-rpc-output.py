@@ -1,5 +1,4 @@
 import DiscordRPC
-import time 
 
 rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
 
@@ -17,6 +16,3 @@ rpc.set_activity(
       buttons=button
     )
 print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
-
-while True:
-    time.sleep(600)
