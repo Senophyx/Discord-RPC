@@ -1,5 +1,4 @@
 import DiscordRPC
-import time 
 
 rpc = DiscordRPC.RPC.Set_ID(app_id=1234567891011)
 
@@ -16,6 +15,3 @@ rpc.set_activity(
       timestamp=rpc.timestamp(),
       buttons=button
     )
-
-while True:
-    time.sleep(600) # to update the RPC, recommended: every 10 minutes or 600 seconds
