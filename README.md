@@ -42,3 +42,10 @@ More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
 </details>
 
 Join our Discord server [here](https://discord.gg/qpT2AeYZRN)
+
+## Licence & Copyright
+
+```
+This Project under Apache License 2.0
+Copyright (c) 2021-present EterNomm
+```
