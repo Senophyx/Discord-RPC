@@ -25,7 +25,7 @@ setup(
     version=version,
     author='LyQuid',
     author_email='lyquidpersonal@gmail.com',
-    description = 'An Python wrapper for Discord RPC API',
+    description='An Python wrapper for Discord RPC',
     long_description=long_description,
     long_description_content_type='text/markdown',
     license='Apache License 2.0',
