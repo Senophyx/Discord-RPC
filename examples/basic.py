@@ -8,3 +8,6 @@ rpc.set_activity(
       details="Discord RPC",
       timestamp=rpc.timestamp()
     )
+
+while True:
+  time.sleep(1)
