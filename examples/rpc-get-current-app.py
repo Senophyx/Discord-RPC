@@ -7,8 +7,7 @@ while True:
     current_app = DiscordRPC.GCAR()
     rpc.set_activity(
           state="pip install discord-rpc",
-          details=current_app,
-          timestamp=rpc.timestamp()
+          details=current_app
         )
 
     time.sleep(15)
