@@ -12,7 +12,6 @@ button = DiscordRPC.button(
 rpc.set_activity(
       state="Made by LyQuid",
       details="Discord-RPC",
-      timestamp=rpc.timestamp(),
       buttons=button
     )
 print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
