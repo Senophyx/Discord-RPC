@@ -12,6 +12,8 @@ button = DiscordRPC.button(
 rpc.set_activity(
       state="Made by LyQuid",
       details="Discord-RPC",
-      timestamp=rpc.timestamp(),
       buttons=button
     )
+
+# REQUIRED !
+rpc.run()
