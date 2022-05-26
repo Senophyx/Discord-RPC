@@ -136,8 +136,8 @@ class RPC(metaclass=ABCMeta):
         buttons=None
     ): 
 
-        r"""
-        A method for set RPC activity
+        """
+        A method for set RPC activity.
         -------
         Parameters :
         - state: `str`
@@ -148,6 +148,8 @@ class RPC(metaclass=ABCMeta):
         - small_image: `str` | must be the same as image name in application assets
         - large_image: `str` | must be the same as image name in application assets
         - buttons: `str` | use DiscordRPC.button() method
+
+        Required to add `run()` method!
         """
         
         if large_image == None:
@@ -165,8 +167,7 @@ class RPC(metaclass=ABCMeta):
             if len(small_text) <= 3:
                 raise Error('"small text" must be at least above 3 characters')
 
-        if buttons == None:
-            act = {
+        act = {
             "state": state,
             "details": details,
             "timestamps": {
@@ -177,24 +178,14 @@ class RPC(metaclass=ABCMeta):
                 "small_image": str(small_image),
                 "large_text": large_text,
                 "large_image": str(large_image)
-            }
+            },
+            "buttons": buttons,
         }
 
-        else:
-            act = {
-                "state": state,
-                "details": details,
-                "timestamps": {
-                    "start": timestamp
-                },
-                "assets": {
-                    "small_text": small_text,
-                    "small_image": str(small_image),
-                    "large_text": large_text,
-                    "large_image": str(large_image)
-                },
-                "buttons": buttons,
-            }
+        if timestamp == None:
+            act.pop('timestamps', None)
+        if buttons == None:
+            act.pop('buttons', None)
 
         data = {
             'cmd': 'SET_ACTIVITY',
@@ -218,8 +209,18 @@ class RPC(metaclass=ABCMeta):
         return op, output
 
     def output(self):
+        """
+        A method to print RPC output.
+        """
         output = self.get_output
         return output
+
+    def run(self):
+        """
+        A method to run RPC. It's REQUIRED.
+        """
+        while True:
+            time.sleep(1)
 
 
 class DiscordWindows(RPC):
