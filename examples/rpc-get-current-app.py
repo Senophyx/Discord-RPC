@@ -12,3 +12,5 @@ while True:
         )
 
     time.sleep(15)
+
+# run() not required if using while loop (only if you use GCAR method.)
