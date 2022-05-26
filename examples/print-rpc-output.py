@@ -16,3 +16,5 @@ rpc.set_activity(
       buttons=button
     )
 print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
+# REQUIRED !
+rpc.run()
