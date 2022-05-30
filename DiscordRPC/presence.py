@@ -129,10 +129,10 @@ class RPC(metaclass=ABCMeta):
         state:str=None, 
         details:str=None,
         timestamp=None, 
-        small_text:str=None, 
-        large_text:str=None,
-        small_image:str=None, 
-        large_image:str=None,
+        small_text:str='null', 
+        large_text:str='null',
+        small_image:str='null', 
+        large_image:str='null',
         buttons=None
     ): 
 
@@ -152,20 +152,11 @@ class RPC(metaclass=ABCMeta):
         Required to add `run()` method!
         """
         
-        if large_image == None:
-           large_image = 'null'
-        if small_image == None:
-            small_image = 'null'
-        if small_text == None:
-            small_text = 'null'
-        if large_text == None:
-            large_text = 'null'
-        else:
-            if len(large_text) <= 3:
-                raise Error('"large text" must be at least above 3 characters')
+        if len(large_text) <= 3:
+            raise Error('"large text" must be at least above 3 characters')
 
-            if len(small_text) <= 3:
-                raise Error('"small text" must be at least above 3 characters')
+        if len(small_text) <= 3:
+            raise Error('"small text" must be at least above 3 characters')
 
         act = {
             "state": state,
@@ -175,13 +166,17 @@ class RPC(metaclass=ABCMeta):
             },
             "assets": {
                 "small_text": small_text,
-                "small_image": str(small_image),
                 "large_text": large_text,
+                "small_image": str(small_image),
                 "large_image": str(large_image)
             },
             "buttons": buttons,
         }
 
+        if small_text == 'null':
+            act['assets'].pop('small_text', None)
+        if large_text == 'null':
+            act['assets'].pop('large_text', None)
         if timestamp == None:
             act.pop('timestamps', None)
         if buttons == None:
