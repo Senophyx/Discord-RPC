@@ -25,9 +25,10 @@ rpc = DiscordRPC.RPC.Set_ID(app_id=12345678910)
 
 rpc.set_activity(
       state="pip install discord-rpc",
-      details="Discord RPC",
-      timestamp=rpc.timestamp()
+      details="Discord RPC"
     )
+
+rpc.run()
 ```
 
 More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
