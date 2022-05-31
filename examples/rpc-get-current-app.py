@@ -1,3 +1,8 @@
+"""
+GCAR function currently disabled due a bug.
+"""
+
+
 import DiscordRPC
 import time 
 
