@@ -1,7 +1,7 @@
 from .presence import *
 from .button import button
 from .exceptions import *
-from .get_current_app import GCAR
+# from .get_current_app import GCAR (Disabling due to a bug)
 
 __title__ = "Discord-RPC"
 __version__ = "3.0"
