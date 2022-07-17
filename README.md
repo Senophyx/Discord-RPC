@@ -30,6 +30,7 @@ rpc.set_activity(
 
 rpc.run()
 ```
+Note that `rpc.run()` is only required to keep your program alive. If another task is doing so then it isn't required.
 
 More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
 
