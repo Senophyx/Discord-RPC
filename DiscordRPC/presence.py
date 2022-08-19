@@ -173,9 +173,13 @@ class RPC(metaclass=ABCMeta):
             "buttons": buttons,
         }
 
-        if small_text == 'null':
+        if state == None or state == '' or state == 'null':
+            act.pop('state', None)
+        if details == None or details == '' or details == 'null':
+            act.pop('details', None)
+        if small_text == None or small_text == '' or small_text == 'null':
             act['assets'].pop('small_text', None)
-        if large_text == 'null':
+        if large_text == None or large_text == '' or large_text == 'null':
             act['assets'].pop('large_text', None)
         if timestamp == None:
             act.pop('timestamps', None)
@@ -212,10 +216,16 @@ class RPC(metaclass=ABCMeta):
 
     def run(self):
         """
-        A method to run RPC. It's REQUIRED.
+        A method to run RPC. It's required to keep the program alive.
         """
         while True:
             time.sleep(1)
+
+    def setLoggerEnabled(self, value):
+        """
+        Enable/Disable the default logging.
+        """
+        logger.disabled = not value
 
 
 class DiscordWindows(RPC):
