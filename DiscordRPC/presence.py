@@ -19,6 +19,11 @@ OP_PONG = 4
 
 logger = logging.getLogger(__name__)
 
+def setLoggerEnabled(value):
+        """
+        Enable/Disable the default logging.
+        """
+        logger.disabled = not value
 
 class RPC(metaclass=ABCMeta):
 
@@ -220,12 +225,6 @@ class RPC(metaclass=ABCMeta):
         """
         while True:
             time.sleep(1)
-
-    def setLoggerEnabled(self, value):
-        """
-        Enable/Disable the default logging.
-        """
-        logger.disabled = not value
 
 
 class DiscordWindows(RPC):
