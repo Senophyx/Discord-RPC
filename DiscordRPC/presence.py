@@ -158,10 +158,10 @@ class RPC(metaclass=ABCMeta):
         """
         
         if len(large_text) <= 1:
-            raise Error('"large text" must be at least above 3 characters')
+            raise Error('"large text" must be at least above 1 characters')
 
         if len(small_text) <= 1:
-            raise Error('"small text" must be at least above 3 characters')
+            raise Error('"small text" must be at least above 1 characters')
 
         act = {
             "state": state,
