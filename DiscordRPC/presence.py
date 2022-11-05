@@ -157,11 +157,11 @@ class RPC(metaclass=ABCMeta):
         Required to add `run()` method!
         """
         
-        if len(large_text) <= 3:
-            raise Error('"large text" must be at least above 3 characters')
+        if len(large_text) <= 1:
+            raise Error('"large text" must be at least above 1 characters')
 
-        if len(small_text) <= 3:
-            raise Error('"small text" must be at least above 3 characters')
+        if len(small_text) <= 1:
+            raise Error('"small text" must be at least above 1 characters')
 
         act = {
             "state": state,
