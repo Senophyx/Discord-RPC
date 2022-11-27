@@ -26,13 +26,16 @@ def button(
         raise ButtonError('"button_one_label" cannot None')
     if button_one_url == None:
         raise ButtonError('"button_one_url" cannot None')
-    if button_two_label == None:
+    if button_two_url != None and button_two_label == None:
         raise ButtonError('"button_two_label" cannot None')
-    if button_two_url == None:
+    if button_two_label != None and button_two_url == None:
         raise ButtonError('"button_two_url" cannot None')
     
     btn_one = button_one(label=button_one_label, url=button_one_url)
-    btn_two = button_two(label=button_two_label, url=button_two_url)
-    payloads = [btn_one, btn_two]
+    if button_two_label or button_two_url != None:
+        btn_two = button_two(label=button_two_label, url=button_two_url)
+        payloads = [btn_one, btn_two]
+    else:
+        payloads = [btn_one]
 
     return payloads

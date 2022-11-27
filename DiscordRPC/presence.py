@@ -179,17 +179,17 @@ class RPC(metaclass=ABCMeta):
         }
 
         if state == None or state == '' or state == 'null':
-            act.pop('state', None)
+            act.pop('state', state)
         if details == None or details == '' or details == 'null':
-            act.pop('details', None)
+            act.pop('details', details)
         if small_text == None or small_text == '' or small_text == 'null':
-            act['assets'].pop('small_text', None)
+            act['assets'].pop('small_text', small_text)
         if large_text == None or large_text == '' or large_text == 'null':
-            act['assets'].pop('large_text', None)
+            act['assets'].pop('large_text', large_text)
         if timestamp == None:
-            act.pop('timestamps', None)
+            act.pop('timestamps')
         if buttons == None:
-            act.pop('buttons', None)
+            act.pop('buttons', buttons)
 
         data = {
             'cmd': 'SET_ACTIVITY',
