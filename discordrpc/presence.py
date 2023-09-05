@@ -171,8 +171,11 @@ class RPC:
     
 
     def run(self):
-        while True:
-            time.sleep(1)
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.close()
 
 
 
