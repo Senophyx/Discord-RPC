@@ -5,7 +5,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 version = ''
-with open('DiscordRPC/__init__.py') as f:
+with open('discordrpc/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 if not version:
@@ -28,7 +28,7 @@ setup(
     description='An Python wrapper for Discord RPC',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    license='Apache License 2.0',
+    license='MIT License',
     url='https://github.com/LyQuid12/discord-rpc',
     project_urls={
         "Discord": "https://discord.gg/qpT2AeYZRN",
@@ -45,7 +45,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS',
         'Operating System :: POSIX :: Linux',
