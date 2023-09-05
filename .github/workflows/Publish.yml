@@ -1,8 +1,6 @@
 name: Publish to PyPI
 
-on:
-  release:
-    types: [published]
+on: workflow_dispatch
 
 jobs:
   deploy:
