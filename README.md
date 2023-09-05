@@ -18,10 +18,9 @@ pip install discord-rpc
 
 ## Quick example
 ```py
-import DiscordRPC
-import time 
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=12345678910)
+rpc = discordrpc.RPC.set_id(app_id=12345678910)
 
 rpc.set_activity(
       state="pip install discord-rpc",
@@ -35,19 +34,12 @@ Note that `rpc.run()` is only required to keep your program alive. If another ta
 More examples [here](https://github.com/LyQuid12/discord-rpc/tree/main/examples)
 
 ## Other
-<details>
-    <summary>Plan</summary>
-    <br>
-    <ul>
-        <li>-</li>
-    </ul>
-</details>
 
 Join our Discord server [here](https://discord.gg/qpT2AeYZRN)
 
 ## Licence & Copyright
 
 ```
-This Project under Apache License 2.0
+This Project under MIT License
 Copyright (c) 2021-present EterNomm
 ```
