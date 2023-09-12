@@ -22,7 +22,7 @@ class InvalidURL(RPCException):
 
 class InvalidID(RPCException):
     def __init__(self):
-        super().__init__("Invalid ID, is the ID correct?")
+        super().__init__("Invalid ID, is the ID correct? Get Application ID on https://discord.com/developers/applications")
 
 class ButtonError(RPCException):
     def __init__(self, message: str = None):
