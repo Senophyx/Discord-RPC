@@ -1,8 +1,8 @@
-import DiscordRPC
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=1234567891011)
+rpc = discordrpc.RPC.set_id(app_id=1234567891011)
 
-button = DiscordRPC.button(
+button = discordrpc.button(
   button_one_label="Repository",
   button_one_url="https://github.com/LyQuid12/discord-rpc",
   button_two_label="Discord Server",
