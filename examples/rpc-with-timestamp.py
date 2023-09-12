@@ -1,11 +1,11 @@
-import DiscordRPC
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=123456789)
+rpc = discordrpc.RPC.set_id(app_id=123456789)
 
 rpc.set_activity(
       state="With timestamp!",
       details="Timestamp",
-      timestamp=rpc.timestamp()
+      timestamp=rpc.timestamp
     )
 
 # REQUIRED !
