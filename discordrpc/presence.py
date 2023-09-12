@@ -46,7 +46,7 @@ class RPC:
                 self.close()
                 if data['code'] == 4000:
                     raise InvalidID()
-            raise RuntimeError(data)
+            raise RPCException(f"Unknown error : {data}")
         
 
     def _write(self, data:bytes):
