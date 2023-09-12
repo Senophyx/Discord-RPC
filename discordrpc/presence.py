@@ -44,6 +44,8 @@ class RPC:
         else:
             if op == OP_CLOSE:
                 self.close()
+                if data['code'] == 4000:
+                    raise InvalidID()
             raise RuntimeError(data)
         
 
