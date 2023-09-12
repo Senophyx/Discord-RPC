@@ -1,8 +1,10 @@
-import DiscordRPC
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
+rpc = discordrpc.RPC.set_id(app_id=123456789101112)
 
-button = DiscordRPC.button(
+rpc.show_output = True # Set show_output to True to get RPC output (Like whether RPC works well or not)
+
+button = discordrpc.button(
   button_one_label="Repository",
   button_one_url="https://github.com/LyQuid12/discord-rpc",
   button_two_label="Discord Server",
@@ -14,6 +16,6 @@ rpc.set_activity(
       details="Discord-RPC",
       buttons=button
     )
-print(rpc.output()) # Use output() method to get RPC output (Like whether RPC works well or not)
+
 # REQUIRED !
 rpc.run()
