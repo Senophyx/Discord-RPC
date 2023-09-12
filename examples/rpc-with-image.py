@@ -3,7 +3,7 @@ import discordrpc
 rpc = discordrpc.RPC.set_id(app_id=123456789101112)
 
 # Upload your image(s) here:
-# https://discordapp.com/developers/applications/<APP ID>/rich-presence/assets
+# https://discord.com/developers/applications/<APP ID>/rich-presence/assets
 
 rpc.set_activity(
       state="pip install discord-rpc",
