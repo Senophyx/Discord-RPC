@@ -1,6 +1,6 @@
-import DiscordRPC
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=123456789101112)
+rpc = discordrpc.RPC.set_id(app_id=123456789101112)
 
 # Upload your image(s) here:
 # https://discordapp.com/developers/applications/<APP ID>/rich-presence/assets
