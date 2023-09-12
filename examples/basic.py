@@ -1,6 +1,6 @@
-import DiscordRPC
+import discordrpc
 
-rpc = DiscordRPC.RPC.Set_ID(app_id=12345678910)
+rpc = discordrpc.RPC.set_id(app_id=12345678910)
 
 rpc.set_activity(
       state="A super simple rpc",
