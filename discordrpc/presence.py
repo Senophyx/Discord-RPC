@@ -231,7 +231,7 @@ class DiscordUnix(RPC):
             raise DiscordNotOpened
 
 
-    def _get_pipe_path():
+    def _get_pipe_path(self):
         env_keys = ('XDG_RUNTIME_DIR', 'TMPDIR', 'TMP', 'TEMP')
         for env_key in env_keys:
             dir_path = os.environ.get(env_key)
