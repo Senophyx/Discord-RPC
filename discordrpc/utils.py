@@ -1,3 +1,5 @@
+import time
+
 # Credits to qwertyquerty
 # https://github.com/qwertyquerty/pypresence/blob/master/pypresence/utils.py#L12C1-L21C13
 
@@ -11,3 +13,6 @@ def remove_none(d: dict):
         elif d[item] is None:
             del d[item]
     return d
+
+
+timestamp = time.time()
