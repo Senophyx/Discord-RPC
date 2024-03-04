@@ -5,9 +5,9 @@ import json
 import struct
 import uuid
 import re
-import time
 from .exceptions import *
 from .utils import remove_none
+import logging
 
 
 OP_HANDSHAKE = 0
@@ -15,24 +15,33 @@ OP_FRAME = 1
 OP_CLOSE = 2
 
 
+### Loger ###
+log = logging.getLogger("Discord RPC")
+log.setLevel(logging.INFO)
+logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+
 
 class RPC:
-    def __init__(self, app_id:int):
+    def __init__(self, app_id:int, debug:bool=False):
         app_id = str(app_id)
         self.app_id = app_id
 
-        self.debug = True
+
+        if debug == True:
+            log.setLevel(logging.DEBUG)
+
         # Soon :
+        #self.debug = False
         # self.show_output = False
         # self.is_connected = False
         # self.is_running = False
 
         if sys.platform == "win32":
-            self.ipc = WindowsPipe(app_id, self.debug)
+            self.ipc = WindowsPipe(app_id)
             self.ipc.handshake()
 
         else:
-            self.ipc = UnixPipe(app_id, self.debug)
+            self.ipc = UnixPipe(app_id)
             self.ipc.handshake()
 
 
@@ -94,9 +103,8 @@ class RPC:
 
 
 class WindowsPipe:
-    def __init__(self, app_id, debug):
+    def __init__(self, app_id):
         self.app_id = app_id
-        self.debug = debug
 
         base_path = R'\\?\pipe\discord-ipc-{}'
         
@@ -113,8 +121,7 @@ class WindowsPipe:
         else:
             raise DiscordNotOpened()
         
-        if self.debug == True:
-            print(f"Connected to {path}")
+        log.debug(f"Connected to {path}")
 
 
     def _recv(self):
@@ -136,15 +143,13 @@ class WindowsPipe:
         
         output = json.loads(enc_data.decode('UTF-8'))
 
-        if self.debug == True:
-            print(output)
+        log.debug(output)
 
         return output
     
 
     def _send(self, payload, op=OP_FRAME):
-        if self.debug == True:
-            print(payload)
+        log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
@@ -157,11 +162,15 @@ class WindowsPipe:
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
         data = self._recv()
 
-        if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-            print(f"Connected to {data['data']['user']['global_name']} ({data['data']['user']['username']}) | User ID : {data['data']['user']['id']}")
-            return True
-        
-        else:
+        try:
+            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
+                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                return True
+            
+            else:
+                raise RPCException()
+
+        except KeyError:
             if data['code'] == 4000:
                 raise InvalidID
             
@@ -171,15 +180,14 @@ class WindowsPipe:
         
         self.socket.close()
         self.socket = None
-        print("Closing")
-        exit()
+        log.warning("Closing RPC")
+        sys.exit()
 
 
 
 class UnixPipe:
-    def __init__(self, app_id, debug):
+    def __init__(self, app_id):
         self.app_id = app_id
-        self.debug = debug
 
         self.socket = socket.socket(socket.AF_UNIX)
 
@@ -198,8 +206,8 @@ class UnixPipe:
         else:
             raise DiscordNotOpened()
         
-        if self.debug == True:
-            print(f"Connected to {path}")
+        
+        log.debug(f"Connected to {path}")
 
 
     def _recv(self):
@@ -210,15 +218,15 @@ class UnixPipe:
 
         output = json.loads(enc_data.decode('UTF-8'))
     
-        if self.debug == True:
-            print(output)
+        
+        log.debug(output)
 
         return output
     
 
     def _send(self, payload, op=OP_FRAME):
-        if self.debug == True:
-            print(payload)
+        
+        log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
@@ -230,13 +238,17 @@ class UnixPipe:
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
         data = self._recv()
 
-        if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-            print(f"Connected to {data['data']['user']['global_name']} ({data['data']['user']['username']}) | User ID : {data['data']['user']['id']}")
-            return True
-        
-        else:
+        try:
+            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
+                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                return True
+            
+            else:
+                raise RPCException()
+
+        except KeyError:
             if data['code'] == 4000:
-                raise InvalidID()
+                raise InvalidID
             
 
     def disconnect(self):
@@ -245,5 +257,5 @@ class UnixPipe:
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         self.socket = None
-        print("Closing")
-        exit()
+        log.warning("Closing RPC")
+        sys.exit()
