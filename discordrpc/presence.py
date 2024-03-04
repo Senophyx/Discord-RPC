@@ -37,8 +37,6 @@ class RPC:
 
 
 
-    timestamp = time.time()
-    
 
     def set_activity(
             self,
