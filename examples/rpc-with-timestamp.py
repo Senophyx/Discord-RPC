@@ -1,12 +1,18 @@
 import discordrpc
 
-rpc = discordrpc.RPC.set_id(app_id=123456789)
+# Import timestamp variable from discordrpc.utils to get current timestamp
+from discordrpc.utils import timestamp
+
+
+rpc = discordrpc.RPC(app_id=123456789)
 
 rpc.set_activity(
       state="With timestamp!",
       details="Timestamp",
-      timestamp=rpc.timestamp
+      ts_start=timestamp, # Timestamp start
+      ts_end=1752426021 # Timestamp end
     )
 
-# REQUIRED !
+
+
 rpc.run()

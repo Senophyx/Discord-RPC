@@ -1,11 +1,11 @@
 import discordrpc
 
-rpc = discordrpc.RPC.set_id(app_id=12345678910)
+rpc = discordrpc.RPC(app_id=12345678910)
 
 rpc.set_activity(
       state="A super simple rpc",
       details="simple RPC"
     )
 
-# REQUIRED !
+# Required if you only run Discord RPC on this file or current instance.
 rpc.run()
