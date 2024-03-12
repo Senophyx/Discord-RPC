@@ -15,4 +15,4 @@ def remove_none(d: dict):
     return d
 
 
-timestamp = time.time()
+timestamp = time.mktime(time.localtime())
