@@ -22,27 +22,31 @@ logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcN
 
 
 class RPC:
-    def __init__(self, app_id:int, debug:bool=False):
+    def __init__(self, app_id:int, debug:bool=False, output:bool=True):
         app_id = str(app_id)
         self.app_id = app_id
 
 
         if debug == True:
             log.setLevel(logging.DEBUG)
+        
+        if output == False:
+            log.disabled = True
 
-        # Soon :
-        #self.debug = False
-        # self.show_output = False
-        # self.is_connected = False
-        # self.is_running = False
+        self.is_connected = False
+        self.is_running = False
 
         if sys.platform == "win32":
             self.ipc = WindowsPipe(app_id)
-            self.ipc.handshake()
+            handshake = self.ipc.handshake()
+            if handshake == True:
+                self.is_connected = True
 
         else:
             self.ipc = UnixPipe(app_id)
-            self.ipc.handshake()
+            handshake = self.ipc.handshake()
+            if handshake == True:
+                self.is_connected = True
 
 
 
@@ -50,7 +54,7 @@ class RPC:
     def set_activity(
             self,
             state: str=None, details:str=None,
-            start: int=None, end: int = None,
+            ts_start: int=None, ts_end: int = None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size: list=None,
@@ -62,8 +66,8 @@ class RPC:
             "state": state,
             "details": details,
             "timestamps": {
-                "start": start,
-                "end": end
+                "start": ts_start,
+                "end": ts_end
             },
             "assets": {
                 "large_image": large_image,
@@ -94,10 +98,14 @@ class RPC:
         }
 
         self.ipc._send(payload, OP_FRAME)
+        self.is_running = True
+        log.info('RPC set')
 
     
     def disconnect(self):
         self.ipc.disconnect()
+        self.is_connected = False
+        self.is_running = False
 
 
 
