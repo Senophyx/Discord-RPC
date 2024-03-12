@@ -63,6 +63,9 @@ class RPC:
             match_secret:str=None, buttons=None
         ):
 
+        if type(party_id) == int:
+            party_id = str(party_id)
+            
         act = {
             "state": state,
             "details": details,
