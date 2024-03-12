@@ -8,6 +8,7 @@ import re
 from .exceptions import *
 from .utils import remove_none
 import logging
+import time
 
 
 OP_HANDSHAKE = 0
@@ -106,6 +107,14 @@ class RPC:
         self.ipc.disconnect()
         self.is_connected = False
         self.is_running = False
+
+
+    def run(self, update_every:int=1):
+        try:
+            while True:
+                time.sleep(update_every)
+        except KeyboardInterrupt:
+            self.disconnect()
 
 
 
