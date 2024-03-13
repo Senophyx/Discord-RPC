@@ -1,4 +1,5 @@
 import time
+import datetime
 
 # Credits to qwertyquerty
 # https://github.com/qwertyquerty/pypresence/blob/master/pypresence/utils.py#L12C1-L21C13
@@ -15,4 +16,10 @@ def remove_none(d: dict):
     return d
 
 
-timestamp = time.mktime(time.localtime())
+timestamp = int(time.mktime(time.localtime()))
+
+
+def date_to_timestamp(date:str):
+    return int(time.mktime(
+        datetime.datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
+    ))
