@@ -11,36 +11,41 @@ with open('discordrpc/__init__.py') as f:
 if not version:
     raise RuntimeError('Version is not set')
 
-def read_requirements():
-    with open('requirements.txt', 'r') as req:
-        content = req.read()
-        requirements = content.split('\n')
 
-    return requirements
+# Not needed because there are currently no required packages in requirements.txt
+
+# def read_requirements():
+#     with open('requirements.txt', 'r') as req:
+#         content = req.read()
+#         requirements = content.split('\n')
+
+#     return requirements
 
 
 
 setup(
     name='discord-rpc',
     version=version,
-    author='LyQuid',
-    author_email='lyquidpersonal@gmail.com',
+    author='Senophyx',
+    author_email='contact@senophyx.id',
     description='An Python wrapper for Discord RPC',
     long_description=long_description,
     long_description_content_type='text/markdown',
     license='MIT License',
-    url='https://github.com/LyQuid12/discord-rpc',
+    url='https://github.com/Senophyx/discord-rpc',
     project_urls={
         "Discord": "https://discord.gg/qpT2AeYZRN",
-        "Issue tracker": "https://github.com/LyQuid12/discord-rpc/issues",
+        "Issue tracker": "https://github.com/Senophyx/discord-rpc/issues",
     },
     packages=find_packages(),
     include_package_data=True,
-    install_requires=read_requirements(),
+    #install_requires=read_requirements(),
     keywords=["Discord", "rpc", "discord rpc"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Other Audience',
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
