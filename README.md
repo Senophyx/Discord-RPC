@@ -60,8 +60,11 @@ Big thanks for contributors who help this project keep updated, and maintained.
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## Other
-Join our Discord server [here](https://discord.gg/qpT2AeYZRN)
+## Links
+- [Github Repository](https://github.com/Senophyx/Discord-RPC)
+- [PyPI Project page](https://pypi.org/project/discord-rpc/)
+- [TestPyPI Project page](https://test.pypi.org/project/discord-rpc/)
+- [Discord Server](https://discord.gg/qpT2AeYZRN)
 
 ## Licence & Copyright
 
