@@ -60,7 +60,7 @@ class RPC:
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
-            match_secret:str=None, buttons=None
+            match_secret:str=None, buttons:list=None
         ):
 
         if type(party_id) == int:
