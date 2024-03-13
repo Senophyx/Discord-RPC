@@ -1,4 +1,21 @@
 {
   "projectName": "Discord-RPC",
-  "projectOwner": "Senophyx"
+  "projectOwner": "Senophyx",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "Senophyx",
+      "name": "Senophyx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/83483788?v=4",
+      "profile": "https://senophyx.id/",
+      "contributions": [
+        "maintenance"
+      ]
+    }
+  ]
 }
