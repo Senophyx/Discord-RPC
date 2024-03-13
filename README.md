@@ -32,7 +32,8 @@ rpc.run()
 ```
 `rpc.run()` is only used if you are only running Discord RPC on the current file/instance. If there are other programs/tasks on the current instance, `rpc.run()` does not need to be used.
 
-More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
+See documentation [here](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md).<br>
+More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples).
 
 ## Other
 
