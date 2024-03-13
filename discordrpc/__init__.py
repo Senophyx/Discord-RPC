@@ -1,5 +1,5 @@
 from .presence import RPC
-from .button import button
+from .button import Button
 from .exceptions import *
 from .utils import timestamp
 
