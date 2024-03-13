@@ -37,6 +37,8 @@ More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 
 
 ## Contributors
+Big thanks for contributors who help this project keep updated, and maintained.
+
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
