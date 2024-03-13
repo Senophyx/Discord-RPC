@@ -55,10 +55,10 @@ class RPC:
     def set_activity(
             self,
             state: str=None, details:str=None,
-            ts_start: int=None, ts_end: int = None,
+            ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
-            party_id:str=None, party_size: list=None,
+            party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons=None
         ):
