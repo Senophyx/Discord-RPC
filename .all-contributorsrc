@@ -25,6 +25,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Kale-Ko",
+      "name": "Kale",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54416665?v=4",
+      "profile": "https://www.kaleko.dev/",
+      "contributions": [
+        "bug"
+      ]
     }
   ]
 }
