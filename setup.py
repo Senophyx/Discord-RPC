@@ -35,7 +35,8 @@ setup(
     url='https://github.com/Senophyx/discord-rpc',
     project_urls={
         "Discord": "https://discord.gg/qpT2AeYZRN",
-        "Issue tracker": "https://github.com/Senophyx/discord-rpc/issues",
+        "Documentation" : "https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md",
+        "Issue tracker": "https://github.com/Senophyx/discord-rpc/issues"
     },
     packages=find_packages(),
     include_package_data=True,
