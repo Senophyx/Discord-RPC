@@ -41,13 +41,6 @@ More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/k9ur"><img src="https://avatars.githubusercontent.com/u/67886793?v=4?s=100" width="100px;" alt="k9er"/><br /><sub><b>k9er</b></sub></a><br /><a href="#doc-k9ur" title="Documentation">📖</a></td>
-    </tr>
-  </tbody>
-</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
