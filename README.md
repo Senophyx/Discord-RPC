@@ -35,8 +35,19 @@ rpc.run()
 See documentation [here](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md).<br>
 More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples).
 
-## Other
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## Other
 Join our Discord server [here](https://discord.gg/qpT2AeYZRN)
 
 ## Licence & Copyright
