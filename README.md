@@ -41,6 +41,13 @@ More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://pukima.site"><img src="https://avatars.githubusercontent.com/u/58347116?v=4?s=100" width="100px;" alt="Pukima"/><br /><sub><b>Pukima</b></sub></a><br /><a href="#bug-Pukimaa" title="Bug reports">🐛</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
