@@ -41,6 +41,13 @@ More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://buymeacoffee.com/saves"><img src="https://avatars.githubusercontent.com/u/8108358?v=4?s=100" width="100px;" alt="Jesusaves"/><br /><sub><b>Jesusaves</b></sub></a><br /><a href="#bug-pazkero" title="Bug reports">🐛</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
