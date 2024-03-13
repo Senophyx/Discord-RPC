@@ -20,16 +20,17 @@ pip install discord-rpc
 ```py
 import discordrpc
 
-rpc = discordrpc.RPC.set_id(app_id=12345678910)
+rpc = discordrpc.RPC(app_id=12345678910)
 
 rpc.set_activity(
-      state="pip install discord-rpc",
-      details="Discord RPC"
+      state="A super simple rpc",
+      details="simple RPC"
     )
 
+# Required if you only run Discord RPC on this file or current instance.
 rpc.run()
 ```
-Note that `rpc.run()` is only required to keep your program alive. If another task is doing so then it isn't required.
+`rpc.run()` is only used if you are only running Discord RPC on the current file/instance. If there are other programs/tasks on the current instance, `rpc.run()` does not need to be used.
 
 More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 
