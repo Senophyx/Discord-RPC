@@ -1,8 +1,9 @@
 import discordrpc
+from discordrpc.button import Button
 
 rpc = discordrpc.RPC(app_id=1234567891011)
 
-button = discordrpc.button(
+button = Button(
   button_one_label="Repository",
   button_one_url="https://github.com/Senophyx/discord-rpc",
   button_two_label="Discord Server",
