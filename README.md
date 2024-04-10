@@ -51,6 +51,7 @@ Big thanks for contributors who help this project keep updated, and maintained.
       <td align="center" valign="top" width="14.28%"><a href="https://www.kaleko.dev/"><img src="https://avatars.githubusercontent.com/u/54416665?v=4?s=100" width="100px;" alt="Kale"/><br /><sub><b>Kale</b></sub></a><br /><a href="#bug-Kale-Ko" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/TaIFeel"><img src="https://avatars.githubusercontent.com/u/94287800?v=4?s=100" width="100px;" alt="TaIFeel"/><br /><sub><b>TaIFeel</b></sub></a><br /><a href="#code-TaIFeel" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://buymeacoffee.com/saves"><img src="https://avatars.githubusercontent.com/u/8108358?v=4?s=100" width="100px;" alt="Jesusaves"/><br /><sub><b>Jesusaves</b></sub></a><br /><a href="#bug-pazkero" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://dipeshaggarwal.com"><img src="https://avatars.githubusercontent.com/u/1311129?v=4?s=100" width="100px;" alt="Dipesh Aggarwal"/><br /><sub><b>Dipesh Aggarwal</b></sub></a><br /><a href="#code-DipeshAggarwal" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
