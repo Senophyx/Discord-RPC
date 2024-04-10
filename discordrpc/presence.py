@@ -10,23 +10,22 @@ from .utils import remove_none
 import logging
 import time
 
-
 OP_HANDSHAKE = 0
 OP_FRAME = 1
 OP_CLOSE = 2
 
+TRY_RECONNECTING = True
 
-### Loger ###
+### Logger ###
 log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
 logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 
 class RPC:
-    def __init__(self, app_id:int, debug:bool=False, output:bool=True):
-        app_id = str(app_id)
-        self.app_id = app_id
-
+    def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True):
+        self.app_id = str(app_id)
+        self.exit_if_discord_close = exit_if_discord_close
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -34,24 +33,24 @@ class RPC:
         if output == False:
             log.disabled = True
 
-        self.is_connected = False
         self.is_running = False
+        self._setup()
 
+    def _setup(self):
         if sys.platform == "win32":
-            self.ipc = WindowsPipe(app_id)
-            handshake = self.ipc.handshake()
-            if handshake == True:
-                self.is_connected = True
+            self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close)
+            if not self.ipc.connected:
+                return
+
+            self.ipc.handshake()
 
         else:
-            self.ipc = UnixPipe(app_id)
-            handshake = self.ipc.handshake()
-            if handshake == True:
-                self.is_connected = True
+            self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close)
+            if not self.ipc.connected:
+                return
 
-
-
-
+            self.ipc.handshake()
+    
     def set_activity(
             self,
             state: str=None, details:str=None,
@@ -91,7 +90,6 @@ class RPC:
             "buttons": buttons
         }
 
-
         payload = {
             'cmd': 'SET_ACTIVITY',
             'args': {
@@ -101,16 +99,22 @@ class RPC:
             'nonce': str(uuid.uuid4())
         }
 
+        if not self.ipc.connected and TRY_RECONNECTING:
+            self._setup()
+
+        if not self.ipc.connected:
+            return
+
         self.ipc._send(payload, OP_FRAME)
         self.is_running = True
         log.info('RPC set')
 
-    
     def disconnect(self):
-        self.ipc.disconnect()
-        self.is_connected = False
-        self.is_running = False
+        if not self.ipc.connected:
+            return
 
+        self.ipc.disconnect()
+        self.is_running = False
 
     def run(self, update_every:int=1):
         try:
@@ -119,12 +123,11 @@ class RPC:
         except KeyboardInterrupt:
             self.disconnect()
 
-
-
-
 class WindowsPipe:
-    def __init__(self, app_id):
+    def __init__(self, app_id, exit_if_discord_close):
         self.app_id = app_id
+        self.exit_if_discord_close = exit_if_discord_close
+        self.connected = True
 
         base_path = R'\\?\pipe\discord-ipc-{}'
         
@@ -134,15 +137,20 @@ class WindowsPipe:
             try:
                 self.socket = open(path, "w+b")
             except OSError as e:
-                raise Error("Failed to open {!r}: {}".format(path, e))
+                if not self.exit_if_discord_close:
+                    raise Error("Failed to open {!r}: {}".format(path, e))
             else:
                 break
 
         else:
-            raise DiscordNotOpened()
-        
-        log.debug(f"Connected to {path}")
+            if not self.exit_if_discord_close:
+                raise DiscordNotOpened()
+            else:
+                log.debug("Discord seems to be close.")
+                self.connected = False
 
+        if self.connected:
+            log.debug(f"Connected to {path}")
 
     def _recv(self):
         enc_header = b''
@@ -160,13 +168,10 @@ class WindowsPipe:
             enc_data += self.socket.read(remain_packet_size)
             remain_packet_size -= len(enc_data)
         
-        
         output = json.loads(enc_data.decode('UTF-8'))
 
         log.debug(output)
-
         return output
-    
 
     def _send(self, payload, op=OP_FRAME):
         log.debug(payload)
@@ -176,7 +181,6 @@ class WindowsPipe:
 
         self.socket.write(payload)
         self.socket.flush()
-
 
     def handshake(self):
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
@@ -193,21 +197,21 @@ class WindowsPipe:
         except KeyError:
             if data['code'] == 4000:
                 raise InvalidID
-            
 
     def disconnect(self):
         self._send({}, OP_CLOSE)
         
         self.socket.close()
         self.socket = None
+
         log.warning("Closing RPC")
         sys.exit()
 
-
-
 class UnixPipe:
-    def __init__(self, app_id):
+    def __init__(self, app_id, exit_if_discord_close):
         self.app_id = app_id
+        self.exit_if_discord_close = exit_if_discord_close
+        self.connected = True
 
         self.socket = socket.socket(socket.AF_UNIX)
 
@@ -224,10 +228,14 @@ class UnixPipe:
                 pass
 
         else:
-            raise DiscordNotOpened()
-        
-        
-        log.debug(f"Connected to {path}")
+            if not self.exit_if_discord_close:
+                raise DiscordNotOpened()
+            else:
+                log.debug("Discord seems to be close.")
+                self.connected = False
+
+        if self.connected:
+            log.debug(f"Connected to {path}")
 
 
     def _recv(self):
@@ -237,22 +245,17 @@ class UnixPipe:
         enc_data = recv_data[8:]
 
         output = json.loads(enc_data.decode('UTF-8'))
-    
         
         log.debug(output)
-
         return output
     
-
     def _send(self, payload, op=OP_FRAME):
-        
         log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
 
         self.socket.send(payload)
-
     
     def handshake(self):
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
@@ -269,13 +272,13 @@ class UnixPipe:
         except KeyError:
             if data['code'] == 4000:
                 raise InvalidID
-            
-
+    
     def disconnect(self):
         self._send({}, OP_CLOSE)
 
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         self.socket = None
+
         log.warning("Closing RPC")
         sys.exit()
