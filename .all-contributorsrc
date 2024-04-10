@@ -52,6 +52,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "DipeshAggarwal",
+      "name": "Dipesh Aggarwal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1311129?v=4",
+      "profile": "http://dipeshaggarwal.com",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
