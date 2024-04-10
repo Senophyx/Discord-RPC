@@ -23,9 +23,9 @@ logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcN
 
 
 class RPC:
-    def __init__(self, app_id:int, debug:bool=False, output:bool=True, crash_if_discord_close:bool=True):
+    def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True):
         self.app_id = str(app_id)
-        self.crash_if_discord_close = crash_if_discord_close
+        self.exit_if_discord_close = exit_if_discord_close
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -38,14 +38,14 @@ class RPC:
 
     def _setup(self):
         if sys.platform == "win32":
-            self.ipc = WindowsPipe(self.app_id, self.crash_if_discord_close)
+            self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close)
             if not self.ipc.connected:
                 return
 
             self.ipc.handshake()
 
         else:
-            self.ipc = UnixPipe(self.app_id, self.crash_if_discord_close)
+            self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close)
             if not self.ipc.connected:
                 return
 
@@ -124,9 +124,9 @@ class RPC:
             self.disconnect()
 
 class WindowsPipe:
-    def __init__(self, app_id, crash_if_discord_close):
+    def __init__(self, app_id, exit_if_discord_close):
         self.app_id = app_id
-        self.crash_if_discord_close = crash_if_discord_close
+        self.exit_if_discord_close = exit_if_discord_close
         self.connected = True
 
         base_path = R'\\?\pipe\discord-ipc-{}'
@@ -137,13 +137,13 @@ class WindowsPipe:
             try:
                 self.socket = open(path, "w+b")
             except OSError as e:
-                if self.crash_if_discord_close:
+                if not self.exit_if_discord_close:
                     raise Error("Failed to open {!r}: {}".format(path, e))
             else:
                 break
 
         else:
-            if self.crash_if_discord_close:
+            if not self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
                 log.debug("Discord seems to be close.")
@@ -208,9 +208,9 @@ class WindowsPipe:
         sys.exit()
 
 class UnixPipe:
-    def __init__(self, app_id, crash_if_discord_close):
+    def __init__(self, app_id, exit_if_discord_close):
         self.app_id = app_id
-        self.crash_if_discord_close = crash_if_discord_close
+        self.exit_if_discord_close = exit_if_discord_close
         self.connected = True
 
         self.socket = socket.socket(socket.AF_UNIX)
@@ -228,7 +228,7 @@ class UnixPipe:
                 pass
 
         else:
-            if self.crash_if_discord_close:
+            if not self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
                 log.debug("Discord seems to be close.")
