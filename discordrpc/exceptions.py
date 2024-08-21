@@ -27,3 +27,8 @@ class InvalidID(RPCException):
 class ButtonError(RPCException):
     def __init__(self, message: str = None):
         super().__init__(message=message)
+
+# https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
+class InvalidActivityType(RPCException):
+    def __init__(self):
+        super().__init__(f"Activity Type 1 and 4 currently disabled. See https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350")

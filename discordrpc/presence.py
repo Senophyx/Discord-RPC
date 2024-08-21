@@ -53,7 +53,7 @@ class RPC:
     
     def set_activity(
             self,
-            state: str=None, details:str=None,
+            state: str=None, details:str=None, act_type:int=0,
             ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
@@ -64,10 +64,16 @@ class RPC:
 
         if type(party_id) == int:
             party_id = str(party_id)
+
+        # https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
+        invalidType = ["1", "4"]
+        if any(invtype in str(act_type) for invtype in invalidType):
+            raise InvalidActivityType()
             
         act = {
             "state": state,
             "details": details,
+            "type": act_type,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end
