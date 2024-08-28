@@ -1,32 +1,25 @@
-from .exceptions import *
+from dataclasses import dataclass
 
-valid_url = ["https://", "http://"]
+from discordrpc import InvalidURL
 
-def _payload(label:str, url:str):
-    if any(v in url for v in valid_url):
-        payloads = {"label": label, "url": url}
-        return payloads
-    else:
-        raise InvalidURL
-    
 
-def Button(
-    button_one_label:str,
-    button_one_url:str,
-    button_two_label:str,
-    button_two_url:str):
-    
-    if button_one_label == None:
-        raise ButtonError('"button_one_label" cannot None')
-    if button_one_url == None:
-        raise ButtonError('"button_one_url" cannot None')
-    if button_two_label == None:
-        raise ButtonError('"button_two_label" cannot None')
-    if button_two_url == None:
-        raise ButtonError('"button_two_url" cannot None')
-    
-    btn_one = _payload(label=button_one_label, url=button_one_url)
-    btn_two = _payload(label=button_two_label, url=button_two_url)
-    payloads = [btn_one, btn_two]
+@dataclass
+class Button:
+    label: str
+    url: str
 
-    return payloads
+    def get_payload(self):
+        if not any(v in self.url for v in ["https://", "http://"]):
+            raise InvalidURL
+        return {"label": self.label, "url": self.url}
+
+
+class Buttons:
+    def __init__(self, *args):
+        if len(args) == 1 and isinstance(args[0], list):
+            self.payload = [i.get_payload() for i in args[0] if isinstance(i, Button)]
+        else:
+            self.payload = [i.get_payload() for i in args if isinstance(i, Button)]
+
+    def get_payloads(self):
+        return self.payload

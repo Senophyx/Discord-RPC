@@ -1,16 +1,14 @@
-from setuptools import setup, find_packages
 import re
+from setuptools import setup, find_packages
 
-with open('README.md') as f:
+with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
-version = ''
-with open('discordrpc/__init__.py') as f:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+with open('discordrpc/__init__.py', encoding='utf-8') as f:
+    VERSION = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
-if not version:
+if not VERSION:
     raise RuntimeError('Version is not set')
-
 
 # Not needed because there are currently no required packages in requirements.txt
 
@@ -22,10 +20,9 @@ if not version:
 #     return requirements
 
 
-
 setup(
     name='discord-rpc',
-    version=version,
+    version=VERSION,
     author='Senophyx',
     author_email='contact@senophyx.id',
     description='An Python wrapper for Discord RPC',
@@ -35,12 +32,12 @@ setup(
     url='https://github.com/Senophyx/discord-rpc',
     project_urls={
         "Discord": "https://discord.gg/qpT2AeYZRN",
-        "Documentation" : "https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md",
+        "Documentation": "https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md",
         "Issue tracker": "https://github.com/Senophyx/discord-rpc/issues"
     },
     packages=find_packages(),
     include_package_data=True,
-    #install_requires=read_requirements(),
+    # install_requires=read_requirements(),
     keywords=["Discord", "rpc", "discord rpc"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
