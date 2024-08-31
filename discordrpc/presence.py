@@ -26,6 +26,7 @@ class RPC:
     def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True):
         self.app_id = str(app_id)
         self.exit_if_discord_close = exit_if_discord_close
+        self.User={}
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -42,14 +43,14 @@ class RPC:
             if not self.ipc.connected:
                 return
 
-            self.ipc.handshake()
+            self.User=self.ipc.handshake()
 
         else:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close)
             if not self.ipc.connected:
                 return
 
-            self.ipc.handshake()
+            self.User=self.ipc.handshake()
     
     def set_activity(
             self,
@@ -195,7 +196,7 @@ class WindowsPipe:
         try:
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
                 log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
-                return True
+                return data['data']['user']
             
             else:
                 raise RPCException()
@@ -270,7 +271,7 @@ class UnixPipe:
         try:
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
                 log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
-                return True
+                return data['data']['user']
             
             else:
                 raise RPCException()
