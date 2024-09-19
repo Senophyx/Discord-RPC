@@ -46,12 +46,15 @@ Big thanks for contributors who help this project keep updated, and maintained.
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://pukima.site"><img src="https://avatars.githubusercontent.com/u/58347116?v=4?s=100" width="100px;" alt="Pukima"/><br /><sub><b>Pukima</b></sub></a><br /><a href="#bug-Pukimaa" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/k9ur"><img src="https://avatars.githubusercontent.com/u/67886793?v=4?s=100" width="100px;" alt="k9er"/><br /><sub><b>k9er</b></sub></a><br /><a href="#doc-k9ur" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.kaleko.dev/"><img src="https://avatars.githubusercontent.com/u/54416665?v=4?s=100" width="100px;" alt="Kale"/><br /><sub><b>Kale</b></sub></a><br /><a href="#bug-Kale-Ko" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TaIFeel"><img src="https://avatars.githubusercontent.com/u/94287800?v=4?s=100" width="100px;" alt="TaIFeel"/><br /><sub><b>TaIFeel</b></sub></a><br /><a href="#code-TaIFeel" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://buymeacoffee.com/saves"><img src="https://avatars.githubusercontent.com/u/8108358?v=4?s=100" width="100px;" alt="Jesusaves"/><br /><sub><b>Jesusaves</b></sub></a><br /><a href="#bug-pazkero" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://dipeshaggarwal.com"><img src="https://avatars.githubusercontent.com/u/1311129?v=4?s=100" width="100px;" alt="Dipesh Aggarwal"/><br /><sub><b>Dipesh Aggarwal</b></sub></a><br /><a href="#code-DipeshAggarwal" title="Code">💻</a></td>
+      <td align="center" valign="top" width="25%"><a href="https://pukima.site"><img src="https://avatars.githubusercontent.com/u/58347116?v=4?s=100" width="100px;" alt="Pukima"/><br /><sub><b>Pukima</b></sub></a><br /><a href="#bug-Pukimaa" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="25%"><a href="https://github.com/k9ur"><img src="https://avatars.githubusercontent.com/u/67886793?v=4?s=100" width="100px;" alt="k9er"/><br /><sub><b>k9er</b></sub></a><br /><a href="#doc-k9ur" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="25%"><a href="https://www.kaleko.dev/"><img src="https://avatars.githubusercontent.com/u/54416665?v=4?s=100" width="100px;" alt="Kale"/><br /><sub><b>Kale</b></sub></a><br /><a href="#bug-Kale-Ko" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="25%"><a href="https://github.com/TaIFeel"><img src="https://avatars.githubusercontent.com/u/94287800?v=4?s=100" width="100px;" alt="TaIFeel"/><br /><sub><b>TaIFeel</b></sub></a><br /><a href="#code-TaIFeel" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="25%"><a href="https://buymeacoffee.com/saves"><img src="https://avatars.githubusercontent.com/u/8108358?v=4?s=100" width="100px;" alt="Jesusaves"/><br /><sub><b>Jesusaves</b></sub></a><br /><a href="#bug-pazkero" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="25%"><a href="http://dipeshaggarwal.com"><img src="https://avatars.githubusercontent.com/u/1311129?v=4?s=100" width="100px;" alt="Dipesh Aggarwal"/><br /><sub><b>Dipesh Aggarwal</b></sub></a><br /><a href="#code-DipeshAggarwal" title="Code">💻</a></td>
+      <td align="center" valign="top" width="25%"><a href="https://github.com/maxsspeaker"><img src="https://avatars.githubusercontent.com/u/56259377?v=4?s=100" width="100px;" alt="Maxsspeaker"/><br /><sub><b>Maxsspeaker</b></sub></a><br /><a href="#code-maxsspeaker" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
