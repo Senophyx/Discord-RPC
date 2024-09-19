@@ -24,7 +24,7 @@ class RPC:
         self.app_id = str(app_id)
         self.reconnection = reconnection
         self.exit_if_discord_close = exit_if_discord_close
-        self.User = {}
+        self.User={}
 
         if not output:
             _log.disabled = True
@@ -38,14 +38,14 @@ class RPC:
             if not self.ipc.connected:
                 return
 
-            self.User = self.ipc.handshake()
+            self.User=self.ipc.handshake()
 
         else:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close)
             if not self.ipc.connected:
                 return
 
-            self.User = self.ipc.handshake()
+            self.User=self.ipc.handshake()
 
     def set_activity(
             self,

@@ -128,8 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Pycharm
-.idea
-
 # For my testing file
 *__test.py
