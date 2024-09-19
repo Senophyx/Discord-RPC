@@ -23,3 +23,6 @@ def remove_none(d: dict):
 
 def date_to_timestamp(date: str):
     return int(time.mktime(datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()))
+
+
+timestamp = get_timestamp()

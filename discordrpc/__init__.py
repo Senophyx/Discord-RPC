@@ -2,8 +2,8 @@ import logging
 
 from .exceptions import *
 from .presence import RPC
-from .button import Button, Buttons
-from .utils import get_timestamp, date_to_timestamp
+from .button import Button
+from .utils import get_timestamp, timestamp, date_to_timestamp
 
 __title__ = "Discord RPC"
 __version__ = "5.1b1"

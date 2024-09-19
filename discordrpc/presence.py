@@ -7,7 +7,6 @@ import asyncio
 from typing import Union
 
 from .exceptions import *
-from .button import Buttons
 from .pipe import WindowsPipe, UnixPipe, Handshake
 from .utils import remove_none
 
@@ -63,13 +62,13 @@ class RPC:
             join_secret: str = None,
             spectate_secret: str = None,
             match_secret: str = None,
-            buttons: Buttons = None
+            buttons: list[dict] = None
     ):
 
         if isinstance(party_id, int):
             party_id = str(party_id)
 
-        if buttons is not None and not isinstance(buttons, Buttons):
+        if buttons is not None and not isinstance(buttons, list):
             raise TypeError("the buttons must be a class of Buttons")
 
         # https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
@@ -99,7 +98,7 @@ class RPC:
                 "spectate": spectate_secret,
                 "match": match_secret
             },
-            "buttons": buttons.get_payloads() if buttons is not None else None
+            "buttons": buttons
         }
 
         payload = {

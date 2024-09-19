@@ -4,7 +4,7 @@ from discordrpc import InvalidURL, ButtonError
 
 
 @dataclass
-class Button:
+class _Button:
     label: str
     url: str
 
@@ -14,18 +14,19 @@ class Button:
         return {"label": self.label, "url": self.url}
 
 
-class Buttons:
-    def __init__(self, *args):
-        if len(args) == 1 and isinstance(args[0], list):
-            payload = [i.get_payload() for i in args[0] if isinstance(i, Button)]
-        else:
-            payload = [i.get_payload() for i in args if isinstance(i, Button)]
+def Button(
+        button_one_label: str,
+        button_one_url: str,
+        button_two_label: str,
+        button_two_url: str):
+    for button in [button_one_label, button_two_label, button_one_url, button_two_url]:
+        if button is None:
+            raise ButtonError('"button" cannot None')
 
-        count_buttons = len(payload)
-        if count_buttons == 0 or count_buttons > 2:
-            raise ButtonError("The number of buttons exceeds two or there are none at all")
-        
-        self.payload = payload
+    payloads = [
+        _Button(label=button_one_label, url=button_one_url).get_payload(),
+        _Button(label=button_two_label, url=button_two_url).get_payload()
+    ]
 
-    def get_payloads(self):
-        return self.payload
+    return payloads
+
