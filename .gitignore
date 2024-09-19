@@ -130,3 +130,6 @@ dmypy.json
 
 # Pycharm
 .idea
+
+# For my testing file
+*__test.py
