@@ -70,6 +70,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "fixator10",
+      "name": "Fixator10",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11073934?v=4",
+      "profile": "https://fixator10.ru",
+      "contributions": [
+        "doc"
+      ]
     }
   ]
 }
