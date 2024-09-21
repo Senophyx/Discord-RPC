@@ -14,7 +14,7 @@ from typing import Union
 from .exceptions import *
 from .utils import remove_none
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class RPC:
@@ -31,7 +31,7 @@ class RPC:
         self.User={}
 
         if not output:
-            _log.disabled = True
+            log.disabled = True
 
         self.is_running = False
         self._setup()
@@ -123,7 +123,7 @@ class RPC:
 
         self.ipc._send(payload, Handshake.OP_FRAME)
         self.is_running = True
-        _log.info('RPC set')
+        log.info('RPC set')
 
     def disconnect(self):
         if not self.ipc.connected:
@@ -156,7 +156,7 @@ class Handshake(enum.IntEnum):
 def check_discord_close(exit_if_discord_close: bool) -> bool:
     if not exit_if_discord_close:
         raise DiscordNotOpened()
-    _log.debug("Discord seems to be close.")
+    log.debug("Discord seems to be close.")
     return False
 
 
@@ -184,11 +184,11 @@ class BasePipe:
 
         output = json.loads(enc_data.decode('UTF-8'))
 
-        _log.debug(output)
+        log.debug(output)
         return output
 
     def _send(self, payload, op=Handshake.OP_FRAME):
-        _log.debug(payload)
+        log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
@@ -201,7 +201,7 @@ class BasePipe:
         data = self._recv()
         try:
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-                _log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
                 return data['data']['user']
 
             else:
@@ -218,7 +218,7 @@ class BasePipe:
             self.socket.close()
         self.socket = None
 
-        _log.warning("Closing RPC")
+        log.warning("Closing RPC")
         sys.exit()
 
 
@@ -242,7 +242,7 @@ class WindowsPipe(BasePipe):
             self.connected = check_discord_close(exit_if_discord_close)
 
         if self.connected:
-            _log.debug("Connected to %s", path)
+            log.debug("Connected to %s", path)
 
 
 class UnixPipe(BasePipe):
@@ -268,7 +268,7 @@ class UnixPipe(BasePipe):
             self.connected = check_discord_close(exit_if_discord_close)
 
         if self.connected:
-            _log.debug("Connected to %s", path)
+            log.debug("Connected to %s", path)
 
     def _recv(self):
         recv_data = self.socket.recv(1024)
@@ -278,11 +278,11 @@ class UnixPipe(BasePipe):
 
         output = json.loads(enc_data.decode('UTF-8'))
 
-        _log.debug(output)
+        log.debug(output)
         return output
 
     def _send(self, payload, op=Handshake.OP_FRAME):
-        _log.debug(payload)
+        log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
@@ -295,7 +295,7 @@ class UnixPipe(BasePipe):
         data = self._recv()
         try:
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-                _log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
                 return data['data']['user']
 
             else:
