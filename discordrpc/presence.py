@@ -50,7 +50,7 @@ class RPC:
                 return
 
             self.User=self.ipc.handshake()
-
+    
     def set_activity(
             self,
             state: str = None,
@@ -203,7 +203,7 @@ class BasePipe:
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
                 log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
                 return data['data']['user']
-
+            
             else:
                 raise RPCException()
 
@@ -297,7 +297,7 @@ class UnixPipe(BasePipe):
             if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
                 log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
                 return data['data']['user']
-
+            
             else:
                 raise RPCException()
 
