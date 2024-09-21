@@ -127,6 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
 # For my testing file
 *__test.py
