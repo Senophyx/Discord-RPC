@@ -199,13 +199,17 @@ class BasePipe:
     def handshake(self):
         self._send({'v': 1, 'client_id': self.app_id}, op=Handshake.OP_HANDSHAKE)
         data = self._recv()
-        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
-            user = data.get('data', {}).get('user', {})
-            _log.info("Connected to %s (%s)", user.get('username'), user.get('id'))
-            return True
-        if data.get('code', 4000) == 4000:
-            raise InvalidID
-        raise RPCException()
+        try:
+            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
+                _log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                return data['data']['user']
+
+            else:
+                raise RPCException()
+
+        except KeyError:
+            if data['code'] == 4000:
+                raise InvalidID
 
     def disconnect(self):
         self._send({}, Handshake.OP_CLOSE)
@@ -275,3 +279,29 @@ class UnixPipe(BasePipe):
         output = json.loads(enc_data.decode('UTF-8'))
 
         _log.debug(output)
+        return output
+
+    def _send(self, payload, op=Handshake.OP_FRAME):
+        _log.debug(payload)
+
+        payload = json.dumps(payload).encode('UTF-8')
+        payload = struct.pack('<ii', op, len(payload)) + payload
+
+        self.socket.write(payload)
+        self.socket.flush()
+
+    def handshake(self):
+        self._send({'v': 1, 'client_id': self.app_id}, op=Handshake.OP_HANDSHAKE)
+        data = self._recv()
+        try:
+            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
+                _log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
+                return data['data']['user']
+
+            else:
+                raise RPCException()
+
+        except KeyError:
+            if data['code'] == 4000:
+                raise InvalidID
+
