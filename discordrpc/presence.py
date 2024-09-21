@@ -304,4 +304,3 @@ class UnixPipe(BasePipe):
         except KeyError:
             if data['code'] == 4000:
                 raise InvalidID
-
