@@ -23,9 +23,10 @@ logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcN
 
 
 class RPC:
-    def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True):
+    def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True, exit_on_disconnect:bool=True):
         self.app_id = str(app_id)
         self.exit_if_discord_close = exit_if_discord_close
+        self.exit_on_disconnect = exit_on_disconnect
         self.User={}
 
         if debug == True:
@@ -212,7 +213,8 @@ class WindowsPipe:
         self.socket = None
 
         log.warning("Closing RPC")
-        sys.exit()
+        if self.exit_on_disconnect:
+            sys.exit()
 
 class UnixPipe:
     def __init__(self, app_id, exit_if_discord_close):
@@ -288,4 +290,5 @@ class UnixPipe:
         self.socket = None
 
         log.warning("Closing RPC")
-        sys.exit()
+        if self.exit_on_disconnect:
+        	sys.exit()
