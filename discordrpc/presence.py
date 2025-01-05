@@ -40,14 +40,14 @@ class RPC:
 
     def _setup(self):
         if sys.platform == "win32":
-            self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close)
+            self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
             if not self.ipc.connected:
                 return
 
             self.User=self.ipc.handshake()
 
         else:
-            self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close)
+            self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
             if not self.ipc.connected:
                 return
 
@@ -132,9 +132,10 @@ class RPC:
             self.disconnect()
 
 class WindowsPipe:
-    def __init__(self, app_id, exit_if_discord_close):
+    def __init__(self, app_id, exit_if_discord_close, exit_on_disconnect):
         self.app_id = app_id
         self.exit_if_discord_close = exit_if_discord_close
+        self.exit_on_disconnect = exit_on_disconnect
         self.connected = True
 
         base_path = R'\\?\pipe\discord-ipc-{}'
@@ -217,9 +218,10 @@ class WindowsPipe:
             sys.exit()
 
 class UnixPipe:
-    def __init__(self, app_id, exit_if_discord_close):
+    def __init__(self, app_id, exit_if_discord_close, exit_on_disconnect):
         self.app_id = app_id
         self.exit_if_discord_close = exit_if_discord_close
+        self.exit_on_disconnect = exit_on_disconnect
         self.connected = True
 
         self.socket = socket.socket(socket.AF_UNIX)
