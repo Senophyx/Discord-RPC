@@ -71,7 +71,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - app_id (`int`) : Application ID ([Tutorial](#getting-application-id))
     - debug (`bool`) : Print more informative output. Default = False
     - output (`bool`) : Print output or not. Default = True
-	 - exit_on_disconnect (`bool`) : Whether to quit program when disconnecting. Default = True
+    - exit_on_disconnect (`bool`) : Whether to quit program when disconnecting. Default = True
 
 - method `RPC.set_activity()`<br>
     Set activity to be displayed on the user's Discord profile.<br>
