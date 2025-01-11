@@ -57,6 +57,9 @@ Big thanks for contributors who help this project keep updated, and maintained.
       <td align="center" valign="top" width="25%"><a href="https://github.com/maxsspeaker"><img src="https://avatars.githubusercontent.com/u/56259377?v=4?s=100" width="100px;" alt="Maxsspeaker"/><br /><sub><b>Maxsspeaker</b></sub></a><br /><a href="#code-maxsspeaker" title="Code">💻</a></td>
       <td align="center" valign="top" width="25%"><a href="https://fixator10.ru"><img src="https://avatars.githubusercontent.com/u/11073934?v=4?s=100" width="100px;" alt="Fixator10"/><br /><sub><b>Fixator10</b></sub></a><br /><a href="#doc-fixator10" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="25%"><a href="http://psychon-night.github.io"><img src="https://avatars.githubusercontent.com/u/49412250?v=4?s=100" width="100px;" alt="SleepyStatic"/><br /><sub><b>SleepyStatic</b></sub></a><br /><a href="#code-psychon-night" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
