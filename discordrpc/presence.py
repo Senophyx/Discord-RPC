@@ -62,7 +62,7 @@ class RPC:
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None
-        ):
+        ) -> bool:
 
         if type(party_id) == int:
             party_id = str(party_id)
@@ -116,6 +116,7 @@ class RPC:
         self.ipc._send(payload, OP_FRAME)
         self.is_running = True
         log.info('RPC set')
+        return True
 
     def disconnect(self):
         if not self.ipc.connected:
