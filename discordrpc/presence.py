@@ -212,6 +212,7 @@ class WindowsPipe:
         
         self.socket.close()
         self.socket = None
+        self.connected = False
 
         log.warning("Closing RPC")
         if self.exit_on_disconnect:
@@ -290,6 +291,7 @@ class UnixPipe:
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         self.socket = None
+        self.connected = False
 
         log.warning("Closing RPC")
         if self.exit_on_disconnect:
