@@ -113,9 +113,13 @@ class RPC:
         if not self.ipc.connected:
             return
 
-        self.ipc._send(payload, OP_FRAME)
-        self.is_running = True
-        log.info('RPC set')
+        try:
+            self.ipc._send(payload, OP_FRAME)
+            self.is_running = True
+            log.info('RPC set')
+        except Exception as e:
+            log.error('Failed to set RPC')
+            self.disconnect()
 
     def disconnect(self):
         if not self.ipc.connected:
@@ -146,16 +150,19 @@ class WindowsPipe:
             try:
                 self.socket = open(path, "w+b")
             except OSError as e:
-                if not self.exit_if_discord_close:
-                    raise Error("Failed to open {!r}: {}".format(path, e))
+                if self.exit_if_discord_close:
+                    log.debug("Failed to open {!r}: {}".format(path, e))
+                    raise DiscordNotOpened()
+                else:
+                    log.debug("Discord seems to be close.")
             else:
                 break
 
         else:
-            if not self.exit_if_discord_close:
+            if self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
-                log.debug("Discord seems to be close.")
+                log.warning("Discord is closed")
                 self.connected = False
 
         if self.connected:
@@ -208,9 +215,12 @@ class WindowsPipe:
                 raise InvalidID
 
     def disconnect(self):
-        self._send({}, OP_CLOSE)
-        
-        self.socket.close()
+        try:
+            self._send({}, OP_CLOSE)
+            self.socket.close()
+        except Exception as e:
+            log.debug("Socket closed before command was received")
+
         self.socket = None
         self.connected = False
 
@@ -240,10 +250,10 @@ class UnixPipe:
                 pass
 
         else:
-            if not self.exit_if_discord_close:
+            if self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
-                log.debug("Discord seems to be close.")
+                log.warning("Discord is closed")
                 self.connected = False
 
         if self.connected:
@@ -286,10 +296,13 @@ class UnixPipe:
                 raise InvalidID
     
     def disconnect(self):
-        self._send({}, OP_CLOSE)
+        try:
+            self._send({}, OP_CLOSE)
+            self.socket.shutdown(socket.SHUT_RDWR)
+            self.socket.close()
+        except Exception as e:
+            log.debug("Socket closed before command was received")
 
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
         self.socket = None
         self.connected = False
 
