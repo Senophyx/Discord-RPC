@@ -122,6 +122,23 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   Return : `True` or `False`
 
 
+## class `discordrpc.Activity`
+- Enum `Activity`<br>
+  Simplified Activity type payload in `RPC.set_activity`
+
+  Available values :
+  - Playing
+  - Streaming
+  - Listening
+  - Watching
+  - Custom
+  - Competing
+
+> [!NOTE]
+> Activity Type `Streaming` and `Custom` currently disabled.<br>
+> [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
+
+
 ## class `discordrpc.Button()`
 - function `Button()`<br>
   Simplified button payload in `RPC.set_activity`
