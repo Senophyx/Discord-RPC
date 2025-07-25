@@ -71,6 +71,9 @@ class RPC:
         invalidType = ["1", "4"]
         if any(invtype in str(act_type) for invtype in invalidType):
             raise InvalidActivityType()
+
+        if len(buttons) > 2:
+            raise ButtonError("Max 2 buttons allowed")
             
         act = {
             "state": state,
