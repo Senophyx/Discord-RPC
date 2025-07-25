@@ -79,7 +79,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     Parameters :
     - state (`str`)
     - details (`str`)
-    - act_type (`int`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - act_type (`discordrpc.Activity`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.

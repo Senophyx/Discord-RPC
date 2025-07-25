@@ -6,6 +6,7 @@ import struct
 import uuid
 import re
 from .exceptions import *
+from .types import *
 from .utils import remove_none
 import logging
 import time
@@ -55,7 +56,7 @@ class RPC:
     
     def set_activity(
             self,
-            state: str=None, details:str=None, act_type:int=0,
+            state: str=None, details:str=None, act_type:Activity=Activity.Playing,
             ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
@@ -67,10 +68,12 @@ class RPC:
         if type(party_id) == int:
             party_id = str(party_id)
 
+        if type(act_type) != Activity:
+            raise InvalidActivityType(type(act_type))
+
         # https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
-        invalidType = ["1", "4"]
-        if any(invtype in str(act_type) for invtype in invalidType):
-            raise InvalidActivityType()
+        if act_type in [Activity.Streaming, Activity.Custom]:
+            raise ActivityTypeDisabled()
 
         if len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
@@ -78,7 +81,7 @@ class RPC:
         act = {
             "state": state,
             "details": details,
-            "type": act_type,
+            "type": act_type.value,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end
