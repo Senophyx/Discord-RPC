@@ -91,7 +91,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
     - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.button.Button` for more easier.
+    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.Button` for more easier.
 
   Return : nothing.
 
@@ -127,12 +127,14 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   Simplified button payload in `RPC.set_activity`
 
   Parameters :
-  - button_one_label (`str`) : Label for button one.
-  - button_one_url (`str`) : Url for button one.
-  - button_two_label (`str`) : Label for button two.
-  - button_two_url (`str`) : Url for button two.
+  - text (`test`)
+  - text (`url`)
 
-  Return : List of button dict.
+  Return : Payload dict.
+
+> [!NOTE]
+> Discord does not display buttons in your own Activity.<br>
+> You won’t see them yourself — but other users will see them correctly.
 
 ## class `discordrpc.utils`
 - variable `discordrpc.utils.timestamp()`<br>
