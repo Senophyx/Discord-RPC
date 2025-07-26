@@ -54,6 +54,7 @@ class RPC:
     def set_activity(
             self,
             state: str=None, details:str=None, act_type:Activity=Activity.Playing,
+            state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
@@ -79,6 +80,8 @@ class RPC:
             "state": state,
             "details": details,
             "type": act_type.value,
+            "state_url": state_url,
+            "details_url": details_url,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end

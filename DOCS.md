@@ -80,6 +80,8 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - state (`str`)
     - details (`str`)
     - act_type (`discordrpc.Activity`) : [Activity Types](#class-discordrpcactivity) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - state_url (`str`) : URL that is linked when clicking on the state text
+    - details_url (`str`) : URL that is linked when clicking on the details text
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
