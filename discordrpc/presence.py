@@ -75,7 +75,7 @@ class RPC:
         if act_type in [Activity.Streaming, Activity.Custom]:
             raise ActivityTypeDisabled()
 
-        if len(buttons) > 2:
+        if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
             
         act = {
