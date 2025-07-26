@@ -39,4 +39,4 @@ class InvalidActivityType(RPCException):
 # https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
 class ActivityTypeDisabled(RPCException):
     def __init__(self):
-        super().__init__(f"Activity Type 1 and 4 currently disabled. See https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350")
+        super().__init__(f"Activity type `Streaming` and `Custom` currently disabled. See https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350")

@@ -65,6 +65,9 @@ Step-by-step making simple rich presence using Discord-RPC.
 ## Examples
 Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https://github.com/Senophyx/Discord-RPC/tree/main/examples).
 
+
+## **All class and function**
+
 ## class `discordrpc.RPC()`
 - `discordrpc.RPC()`<br><br>
     Parameters :
