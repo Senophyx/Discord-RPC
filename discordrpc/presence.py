@@ -28,7 +28,9 @@ class RPC:
         self.app_id = str(app_id)
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
-        self.User={}
+
+        self.user_data = {}
+        self.User = User()
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -42,17 +44,12 @@ class RPC:
     def _setup(self):
         if sys.platform == "win32":
             self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
-            if not self.ipc.connected:
-                return
-
-            self.User=self.ipc.handshake()
-
         else:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
-            if not self.ipc.connected:
-                return
-
-            self.User=self.ipc.handshake()
+            
+        if not self.ipc.connected: return
+        self.user_data = self.ipc.handshake()
+        self.User = User(self.user_data)
     
     def set_activity(
             self,
