@@ -1,6 +1,7 @@
 from .presence import RPC
 from .button import Button
 from .exceptions import *
+from .types import *
 from .utils import timestamp, date_to_timestamp
 
 __title__ = "Discord RPC"

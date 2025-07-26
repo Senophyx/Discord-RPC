@@ -6,6 +6,7 @@ import struct
 import uuid
 import re
 from .exceptions import *
+from .types import *
 from .utils import remove_none
 import logging
 import time
@@ -55,27 +56,32 @@ class RPC:
     
     def set_activity(
             self,
-            state: str=None, details:str=None, act_type:int=0,
+            state: str=None, details:str=None, act_type:Activity=Activity.Playing,
             ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None
-        ):
+        ) -> bool:
 
         if type(party_id) == int:
             party_id = str(party_id)
 
+        if type(act_type) != Activity:
+            raise InvalidActivityType(type(act_type))
+
         # https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350
-        invalidType = ["1", "4"]
-        if any(invtype in str(act_type) for invtype in invalidType):
-            raise InvalidActivityType()
+        if act_type in [Activity.Streaming, Activity.Custom]:
+            raise ActivityTypeDisabled()
+
+        if buttons and len(buttons) > 2:
+            raise ButtonError("Max 2 buttons allowed")
             
         act = {
             "state": state,
             "details": details,
-            "type": act_type,
+            "type": act_type.value,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end
@@ -113,9 +119,14 @@ class RPC:
         if not self.ipc.connected:
             return
 
-        self.ipc._send(payload, OP_FRAME)
-        self.is_running = True
-        log.info('RPC set')
+        try:
+            self.ipc._send(payload, OP_FRAME)
+            self.is_running = True
+            log.info('RPC set')
+            return True
+        except Exception as e:
+            log.error('Failed to set RPC')
+            self.disconnect()
 
     def disconnect(self):
         if not self.ipc.connected:
@@ -146,16 +157,19 @@ class WindowsPipe:
             try:
                 self.socket = open(path, "w+b")
             except OSError as e:
-                if not self.exit_if_discord_close:
-                    raise Error("Failed to open {!r}: {}".format(path, e))
+                if self.exit_if_discord_close:
+                    log.debug("Failed to open {!r}: {}".format(path, e))
+                    raise DiscordNotOpened()
+                else:
+                    log.debug("Discord seems to be close.")
             else:
                 break
 
         else:
-            if not self.exit_if_discord_close:
+            if self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
-                log.debug("Discord seems to be close.")
+                log.warning("Discord is closed")
                 self.connected = False
 
         if self.connected:
@@ -208,10 +222,14 @@ class WindowsPipe:
                 raise InvalidID
 
     def disconnect(self):
-        self._send({}, OP_CLOSE)
-        
-        self.socket.close()
+        try:
+            self._send({}, OP_CLOSE)
+            self.socket.close()
+        except Exception as e:
+            log.debug("Socket closed before command was received")
+
         self.socket = None
+        self.connected = False
 
         log.warning("Closing RPC")
         if self.exit_on_disconnect:
@@ -239,10 +257,10 @@ class UnixPipe:
                 pass
 
         else:
-            if not self.exit_if_discord_close:
+            if self.exit_if_discord_close:
                 raise DiscordNotOpened()
             else:
-                log.debug("Discord seems to be close.")
+                log.warning("Discord is closed")
                 self.connected = False
 
         if self.connected:
@@ -285,12 +303,16 @@ class UnixPipe:
                 raise InvalidID
     
     def disconnect(self):
-        self._send({}, OP_CLOSE)
+        try:
+            self._send({}, OP_CLOSE)
+            self.socket.shutdown(socket.SHUT_RDWR)
+            self.socket.close()
+        except Exception as e:
+            log.debug("Socket closed before command was received")
 
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
         self.socket = None
+        self.connected = False
 
         log.warning("Closing RPC")
         if self.exit_on_disconnect:
-        	sys.exit()
+            sys.exit()

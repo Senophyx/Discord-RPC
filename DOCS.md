@@ -79,7 +79,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     Parameters :
     - state (`str`)
     - details (`str`)
-    - act_type (`int`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - act_type (`discordrpc.Activity`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
@@ -91,9 +91,9 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
     - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.button.Button` for more easier.
+    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.Button` for more easier.
 
-  Return : nothing.
+  Return : `True` if rpc successfully connected.
 
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.
@@ -122,17 +122,36 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   Return : `True` or `False`
 
 
+## class `discordrpc.Activity`
+- Enum `Activity`<br>
+  Simplified Activity type payload in `RPC.set_activity`
+
+  Available values :
+  - Playing
+  - Streaming
+  - Listening
+  - Watching
+  - Custom
+  - Competing
+
+> [!NOTE]
+> Activity Type `Streaming` and `Custom` currently disabled.<br>
+> [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
+
+
 ## class `discordrpc.Button()`
 - function `Button()`<br>
   Simplified button payload in `RPC.set_activity`
 
   Parameters :
-  - button_one_label (`str`) : Label for button one.
-  - button_one_url (`str`) : Url for button one.
-  - button_two_label (`str`) : Label for button two.
-  - button_two_url (`str`) : Url for button two.
+  - text (`test`)
+  - text (`url`)
 
-  Return : List of button dict.
+  Return : Payload dict.
+
+> [!NOTE]
+> Discord does not display buttons in your own Activity.<br>
+> You won’t see them yourself — but other users will see them correctly.
 
 ## class `discordrpc.utils`
 - variable `discordrpc.utils.timestamp()`<br>

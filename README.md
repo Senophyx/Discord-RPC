@@ -8,7 +8,8 @@
 # Discord RPC
 An Python wrapper for Discord RPC API. Allow you to make own custom RPC.
 
-[![Changelog](https://img.shields.io/badge/Discord--RPC-Changelog-informational?style=for-the-badge&logo=github)](https://senophyx.id/projects/discord-rpc/#change-logs)
+[![Changelog](https://img.shields.io/badge/Changelog-blue?style=for-the-badge&logo=github)](https://senophyx.id/projects/discord-rpc/#change-logs)
+[![Documentation](https://img.shields.io/badge/Documentation-gray?style=for-the-badge&logo=googledocs&logoColor=white)](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md)
 
 ## Install
 - PyPI
@@ -32,7 +33,6 @@ rpc.run()
 ```
 `rpc.run()` is only used if you are only running Discord RPC on the current file/instance. If there are other programs/tasks on the current instance, `rpc.run()` does not need to be used.
 
-See documentation [here](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md).<br>
 More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples).
 
 
