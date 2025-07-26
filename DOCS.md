@@ -93,7 +93,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - match_secret (`str`) : Secret for for spectate and join button
     - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.Button` for more easier.
 
-  Return : nothing.
+  Return : `True` if rpc successfully connected.
 
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.
