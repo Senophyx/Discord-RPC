@@ -97,6 +97,11 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#class-discordrpcbutton) for more easier.
 
   Return : `True` if rpc successfully connected.
+  
+- method `RPC.clear()`<br>
+  Clear activity status.
+
+  Return : nothing.
 
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.

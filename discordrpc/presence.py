@@ -61,7 +61,8 @@ class RPC:
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
-            match_secret:str=None, buttons:list=None
+            match_secret:str=None, buttons:list=None,
+            clear=False
         ) -> bool:
 
         if type(party_id) == int:
@@ -113,7 +114,7 @@ class RPC:
             'cmd': 'SET_ACTIVITY',
             'args': {
                 'pid': os.getpid(),
-                'activity': remove_none(act)
+                'activity': None if clear else remove_none(act)
             },
             'nonce': str(uuid.uuid4())
         }
@@ -132,6 +133,9 @@ class RPC:
         except Exception as e:
             log.error('Failed to set RPC')
             self.disconnect()
+
+    def clear(self):
+        self.set_activity(clear=True)
 
     def disconnect(self):
         if not self.ipc.connected:
