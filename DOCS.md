@@ -166,7 +166,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   - name (`str`)
   - avatar (URL `str`)
   - bot (`bool`)
-  - premium_type (`int`)
+  - premium_type (`int`) ([details](https://discord.com/developers/docs/resources/user#user-object-premium-types))
 
 
 ## class `discordrpc.utils`
