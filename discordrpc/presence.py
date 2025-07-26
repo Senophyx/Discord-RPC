@@ -7,7 +7,7 @@ import uuid
 import re
 from .exceptions import *
 from .types import *
-from .utils import remove_none
+from .utils import *
 import logging
 import time
 
@@ -56,6 +56,7 @@ class RPC:
             state: str=None, details:str=None, act_type:Activity=Activity.Playing,
             state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
+            use_local_time:bool=False,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size:list=None,
@@ -75,6 +76,10 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
+
+        if use_local_time:
+            ts_start = ts_start_as_local_time()
+            ts_end = None
             
         act = {
             "state": state,

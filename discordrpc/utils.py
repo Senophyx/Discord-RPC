@@ -1,5 +1,5 @@
 import time
-import datetime
+from datetime import datetime
 
 # Credits to qwertyquerty
 # https://github.com/qwertyquerty/pypresence/blob/master/pypresence/utils.py#L12C1-L21C13
@@ -21,5 +21,10 @@ timestamp = int(time.mktime(time.localtime()))
 
 def date_to_timestamp(date:str):
     return int(time.mktime(
-        datetime.datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
+        datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
     ))
+
+def ts_start_as_local_time():
+    now = datetime.now()
+    seconds_since_midnight = now.hour * 3600 + now.minute * 60 + now.second
+    return int(time.time()) - seconds_since_midnight
