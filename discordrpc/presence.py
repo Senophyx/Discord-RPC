@@ -56,6 +56,7 @@ class RPC:
             state: str=None, details:str=None, act_type:Activity=Activity.Playing,
             state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
+            progressbar:dict=None,
             use_local_time:bool=False,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
@@ -78,7 +79,12 @@ class RPC:
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
 
-        if use_local_time:
+        if progressbar:
+            act_type = Activity.Listening
+            ts_start = progressbar["ts_start"]
+            ts_end = progressbar["ts_end"]
+
+        elif use_local_time:
             ts_start = ts_start_as_local_time()
             ts_end = None
             
@@ -228,7 +234,7 @@ class WindowsPipe:
 
         except KeyError:
             if data['code'] == 4000:
-                raise InvalidID
+                raise InvalidID()
 
     def disconnect(self):
         try:
@@ -309,7 +315,7 @@ class UnixPipe:
 
         except KeyError:
             if data['code'] == 4000:
-                raise InvalidID
+                raise InvalidID()
     
     def disconnect(self):
         try:

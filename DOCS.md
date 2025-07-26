@@ -84,6 +84,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - details_url (`str`) : URL that is linked when clicking on the details text.
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
+    - progressbar (`dict`) : Use [`discordrpc.Progressbar`](#function-discordrpcprogressbar).
     - use_local_time (`bool`) : Display your local time.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
     - large_text (`str`) : Text when user hover to `large_image`.
@@ -94,10 +95,10 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
     - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#class-discordrpcbutton) for more easier.
+    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#function-discordrpcbutton) for more easier.
 
   Return : `True` if rpc successfully connected.
-  
+
 - method `RPC.clear()`<br>
   Clear activity status.
 
@@ -152,9 +153,8 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 > [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
 
 
-## class `discordrpc.Button()`
-- function `Button()`<br>
-  Simplified button payload in `RPC.set_activity`
+## function `discordrpc.Button()`
+- Simplified button payload in `RPC.set_activity`
 
   Parameters :
   - text (`str`)
@@ -165,6 +165,16 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 > [!NOTE]
 > Discord does not display buttons in your own Activity.<br>
 > You won’t see them yourself — but other users will see them correctly.
+
+
+## function `discordrpc.Progressbar()`
+- Simplified `ts_start` and `ts_end` payload in `RPC.set_activity`
+
+  Parameters :
+  - current (`int`)
+  - duration (`int`)
+
+  Return : Payload dict.
 
 
 ## class `discordrpc.User()`
@@ -224,6 +234,11 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
     How-to-Fix : Check if `Button` function are set correctly
 
+
+- `ProgressbarError`<br>
+    There is an error in the `Progressbar` function, usually because the first parameter (current) is more then second parameter (duration).
+
+    How-to-Fix : Make sure that duration > current
 
 
 ## Links

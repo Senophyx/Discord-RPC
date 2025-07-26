@@ -1,5 +1,6 @@
 from .presence import RPC
 from .button import Button
+from .progressbar import Progressbar
 from .exceptions import *
 from .types import *
 from .utils import timestamp, date_to_timestamp
