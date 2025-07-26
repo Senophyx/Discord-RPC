@@ -79,7 +79,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     Parameters :
     - state (`str`)
     - details (`str`)
-    - act_type (`discordrpc.Activity`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - act_type (`discordrpc.Activity`) : [Activity Types](#class-discordrpcactivity) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
@@ -91,7 +91,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
     - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.Button` for more easier.
+    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#class-discordrpcbutton) for more easier.
 
   Return : `True` if rpc successfully connected.
 
@@ -121,10 +121,15 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
   Return : `True` or `False`
 
+- variable `self.User`<br>
+  Returns information about the user to whom the connection occurred.<br>
+  [Available attributes](#class-discordrpcuser)
+
 
 ## class `discordrpc.Activity`
 - Enum `Activity`<br>
-  Simplified Activity type payload in `RPC.set_activity`
+  Simplified Activity type payload in `RPC.set_activity`<br>
+  [Discord docs](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types)
 
   Available values :
   - Playing
@@ -144,14 +149,25 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   Simplified button payload in `RPC.set_activity`
 
   Parameters :
-  - text (`test`)
-  - text (`url`)
+  - text (`str`)
+  - url (`str`)
 
   Return : Payload dict.
 
 > [!NOTE]
 > Discord does not display buttons in your own Activity.<br>
 > You won’t see them yourself — but other users will see them correctly.
+
+
+## class `discordrpc.User()`
+  Attributes :
+  - id (`int`)
+  - username (`str`)
+  - name (`str`)
+  - avatar (URL `str`)
+  - bot (`bool`)
+  - premium_type (`int`)
+
 
 ## class `discordrpc.utils`
 - variable `discordrpc.utils.timestamp()`<br>
