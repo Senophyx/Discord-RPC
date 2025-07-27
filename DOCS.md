@@ -214,5 +214,5 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 ## Licence & Copyright
 ```
 Discord-RPC project is under MIT License
-Copyright (c) 2021-2024 Senophyx and EterNomm.
+Copyright (c) 2021-2025 Senophyx.
 ```

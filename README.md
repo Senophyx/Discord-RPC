@@ -79,5 +79,5 @@ Big thanks for contributors who help this project keep updated, and maintained.
 
 ```
 This Project under MIT License
-Copyright (c) 2021-2024 Senophyx
+Copyright (c) 2021-2025 Senophyx
 ```
