@@ -80,7 +80,8 @@ class RPC:
             raise ButtonError("Max 2 buttons allowed")
 
         if progressbar:
-            act_type = Activity.Listening
+            if not act_type in [Activity.Listening, Activity.Watching]:
+                log.warning("Progressbar works only with Activities: Listening and Watching")
             ts_start = progressbar["ts_start"]
             ts_end = progressbar["ts_end"]
 
