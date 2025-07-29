@@ -24,7 +24,9 @@ def date_to_timestamp(date:str):
         datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
     ))
 
-def ts_start_as_local_time():
+def use_local_time():
     now = datetime.now()
     seconds_since_midnight = now.hour * 3600 + now.minute * 60 + now.second
-    return int(time.time()) - seconds_since_midnight
+    return {
+        "ts_start": int(time.time()) - seconds_since_midnight
+    }

@@ -56,8 +56,8 @@ class RPC:
             state: str=None, details:str=None, act_type:Activity=Activity.Playing,
             state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
-            progressbar:dict=None,
-            use_local_time:bool=False,
+            # progressbar:dict=None,
+            # use_local_time:bool=False,
             large_image:str=None, large_text:str=None,
             small_image:str=None, small_text:str=None,
             party_id:str=None, party_size:list=None,
@@ -78,16 +78,6 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
-
-        if progressbar:
-            if not act_type in [Activity.Listening, Activity.Watching]:
-                log.warning("Progressbar works only with Activities: Listening and Watching")
-            ts_start = progressbar["ts_start"]
-            ts_end = progressbar["ts_end"]
-
-        elif use_local_time:
-            ts_start = ts_start_as_local_time()
-            ts_end = None
             
         act = {
             "state": state,

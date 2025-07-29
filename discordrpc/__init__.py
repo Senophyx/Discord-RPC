@@ -3,7 +3,7 @@ from .button import Button
 from .progressbar import Progressbar
 from .exceptions import *
 from .types import *
-from .utils import timestamp, date_to_timestamp
+from .utils import timestamp, date_to_timestamp, use_local_time
 
 __title__ = "Discord RPC"
 __version__ = "5.1"

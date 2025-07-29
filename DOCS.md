@@ -87,8 +87,6 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - details_url (`str`) : URL that is linked when clicking on the details text.
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
-    - progressbar (`dict`) : Use [`discordrpc.Progressbar`](#function-discordrpcprogressbar).
-    - use_local_time (`bool`) : Display your local time.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
     - large_text (`str`) : Text when user hover to `large_image`.
     - small_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
@@ -202,6 +200,9 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
       ```py
       date_to_timestamp('14/06/2025-00:00:00')
       ```
+
+- function `discordrpc.utils.use_local_time()`<br>
+  Simplified `ts_start` payload in `RPC.set_activity`
 
 
 ## Exceptions & Errors
