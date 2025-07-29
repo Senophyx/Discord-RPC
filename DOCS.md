@@ -82,7 +82,9 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     Parameters :
     - state (`str`)
     - details (`str`)
-    - act_type (`discordrpc.Activity`) : [Activity Types](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - act_type (`discordrpc.Activity`) : [Activity Types](#class-discordrpcactivity) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
+    - state_url (`str`) : URL that is linked when clicking on the state text.
+    - details_url (`str`) : URL that is linked when clicking on the details text.
     - ts_start (`int`) : Timestamp start.
     - ts_end (`int`) : Timestamp end.
     - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
@@ -94,9 +96,14 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
     - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use `discordrpc.Button` for more easier.
+    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#function-discordrpcbutton) for more easier.
 
   Return : `True` if rpc successfully connected.
+
+- method `RPC.clear()`<br>
+  Clear activity status.
+
+  Return : nothing.
 
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.
@@ -124,10 +131,15 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
   Return : `True` or `False`
 
+- variable `self.User`<br>
+  Returns information about the user to whom the connection occurred.<br>
+  [Available attributes](#class-discordrpcuser)
+
 
 ## class `discordrpc.Activity`
 - Enum `Activity`<br>
-  Simplified Activity type payload in `RPC.set_activity`
+  Simplified Activity type payload in `RPC.set_activity`<br>
+  [Discord docs](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types)
 
   Available values :
   - Playing
@@ -142,19 +154,39 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 > [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
 
 
-## class `discordrpc.Button()`
-- function `Button()`<br>
-  Simplified button payload in `RPC.set_activity`
+## function `discordrpc.Button()`
+- Simplified button payload in `RPC.set_activity`
 
   Parameters :
-  - text (`test`)
-  - text (`url`)
+  - text (`str`)
+  - url (`str`)
 
   Return : Payload dict.
 
 > [!NOTE]
 > Discord does not display buttons in your own Activity.<br>
 > You won’t see them yourself — but other users will see them correctly.
+
+
+## function `discordrpc.Progressbar()`
+- Simplified `ts_start` and `ts_end` payload in `RPC.set_activity`
+
+  Parameters :
+  - current (`int`)
+  - duration (`int`)
+
+  Return : Payload dict.
+
+
+## class `discordrpc.User()`
+  Attributes :
+  - id (`int`)
+  - username (`str`)
+  - name (`str`)
+  - avatar (URL `str`)
+  - bot (`bool`)
+  - premium_type (`int`) ([details](https://discord.com/developers/docs/resources/user#user-object-premium-types))
+
 
 ## class `discordrpc.utils`
 - variable `discordrpc.utils.timestamp()`<br>
@@ -168,6 +200,9 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
       ```py
       date_to_timestamp('14/06/2025-00:00:00')
       ```
+
+- function `discordrpc.utils.use_local_time()`<br>
+  Simplified `ts_start` payload in `RPC.set_activity`
 
 
 ## Exceptions & Errors
@@ -203,6 +238,11 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
     How-to-Fix : Check if `Button` function are set correctly
 
+
+- `ProgressbarError`<br>
+    There is an error in the `Progressbar` function, usually because the first parameter (current) is more then second parameter (duration).
+
+    How-to-Fix : Make sure that duration > current
 
 
 ## Links
