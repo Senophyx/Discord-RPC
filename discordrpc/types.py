@@ -10,3 +10,8 @@ class Activity(Enum):
     Watching = 3
     Custom = 4
     Competing = 5
+
+class StatusDisplay(Enum):
+    Name = 0
+    State = 1
+    Details = 2

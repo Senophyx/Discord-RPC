@@ -56,10 +56,10 @@ class RPC:
     
     def set_activity(
             self,
-            state: str=None, details:str=None, act_type:Activity=Activity.Playing,
+            state: str=None, details:str=None, act_type:Activity=Activity.Playing, status_type:StatusDisplay=StatusDisplay.Name,
             ts_start:int=None, ts_end:int=None,
-            large_image:str=None, large_text:str=None,
-            small_image:str=None, small_text:str=None,
+            large_image:str=None, large_text:str=None, large_url:str=None,
+            small_image:str=None, small_text:str=None, small_url:str=None,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None
@@ -82,6 +82,7 @@ class RPC:
             "state": state,
             "details": details,
             "type": act_type.value,
+            "status_display_type": status_type.value,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end
@@ -89,8 +90,10 @@ class RPC:
             "assets": {
                 "large_image": large_image,
                 "large_text": large_text,
+                "large_url": large_url,
                 "small_image": small_image,
-                "small_text": small_text
+                "small_text": small_text,
+                "small_url": small_url
             },
             "party": {
                 "id": party_id,
