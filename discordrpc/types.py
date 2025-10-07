@@ -10,6 +10,10 @@ class Activity(Enum):
     Custom = 4
     Competing = 5
 
+class StatusDisplay(Enum):
+    Name = 0
+    State = 1
+    Details = 2
 
 class User():
     def __init__(self, data:dict=None):

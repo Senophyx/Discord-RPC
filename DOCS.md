@@ -41,7 +41,7 @@ Step-by-step making simple rich presence using Discord-RPC.
     import discordrpc
     ```
 
-3. Creating `rpc` variable from `discordrpc.RPC`. And insert your app ID ([Tutorial](#getting-application-id)).
+3. Creating `rpc` variable from `discordrpc.RPC` with your unique ([Application ID](#getting-application-id)).
     ```py
     rpc = discordrpc.RPC(app_id=1234) #Change app_id to your app id
     ```
@@ -66,39 +66,42 @@ Step-by-step making simple rich presence using Discord-RPC.
 Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https://github.com/Senophyx/Discord-RPC/tree/main/examples).
 
 
-## **All class and function**
+## **All classes and functions**
 
 ## class `discordrpc.RPC()`
 - `discordrpc.RPC()`<br><br>
     Parameters :
     - app_id (`int`) : Application ID ([Tutorial](#getting-application-id))
-    - debug (`bool`) : Print more informative output. Default = False
-    - output (`bool`) : Print output or not. Default = True
+    - debug (`bool`) : Whether to include debug information in the output. Default = False
+    - output (`bool`) : Whether to print the output. Default = True
     - exit_on_disconnect (`bool`) : Whether to quit program when disconnecting. Default = True
 
 - method `RPC.set_activity()`<br>
     Set activity to be displayed on the user's Discord profile.<br>
+    See [Activity Object](https://discord.com/developers/docs/events/gateway-events#activity-object) Discord documentation page for more details.
+    Keep in mind that not every field is currently implemented.
 
     Parameters :
-    - state (`str`)
-    - details (`str`)
-    - act_type (`discordrpc.Activity`) : [Activity Types](#class-discordrpcactivity) (Activity Type `1` and `4` is currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)).
-    - state_url (`str`) : URL that is linked when clicking on the state text.
-    - details_url (`str`) : URL that is linked when clicking on the details text.
-    - ts_start (`int`) : Timestamp start.
-    - ts_end (`int`) : Timestamp end.
-    - large_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
-    - large_text (`str`) : Text when user hover to `large_image`.
-    - small_image (`str`) : The name of the image that has been uploaded to the Discord Developer Portal.
-    - small_text (`str`) : Text when user hover to `small_image`.
-    - party_id (`int`) : id of the user’s party.
-    - party_size (`list`) : party size in list with format `[current_size, max_size]` or `[1, 10]`.
+    - state (`str`) - Describes user's current party status.
+    - details (`str`) - Describes what the player is currently doing.
+    - act_type (`discordrpc.Activity`) : An [Activity Type](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types). Controls how the user's activity is described in their status (e.g. Playing Foo, Listening to Foo). (`Streaming` and `Custom` are currently disabled, see [#28](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350))
+    - status_type (`discordrpc.StatusDisplay`) : A [Status Display Type](https://discord.com/developers/docs/events/gateway-events#activity-object-status-display-types). Controls what is displayed in the user's activity status (e.g. Listening to Foo, Listening to Bar)
+    - ts_start (`int`) : Timestamp representing the start time of an activity. Represented in UNIX epoch time, in seconds.
+    - ts_end (`int`) : Timestamp representing the end time of an activity. Represented in UNIX epoch time, in seconds. When specified, a progress bar is displayed going from `ts_start` to `ts_end`.
+    - large_image (`str`) : Either a unique name of an asset in your application, or a URL to an image. See [Activity Asset Image](https://discord.com/developers/docs/events/gateway-events#activity-object-activity-asset-image).
+    - large_text (`str`) : Text shown when hovering over `large_image`.
+    - large_url (`str`) : URL opened when clicking on `large_image`.
+    - small_image (`str`) : Either a unique name of an asset in your application, or a URL to an image. See [Activity Asset Image](https://discord.com/developers/docs/events/gateway-events#activity-object-activity-asset-image).
+    - small_text (`str`) : Text shown when hovering over  `small_image`.
+    - small_url (`str`) : URL opened when clicking on `small_url`.
+    - party_id (`int`) : ID of the user’s party.
+    - party_size (`list`) : Party size in list with format `[current_size, max_size]` or `[1, 10]`.
     - join_secret (`str`) : Secret for chat invitations and ask to join button.
     - spectate_secret (`str`) : Secret for spectate button.
-    - match_secret (`str`) : Secret for for spectate and join button
-    - buttons (`list`) :  list of dicts for buttons on user's profile. You can use [`discordrpc.Button`](#function-discordrpcbutton) for more easier.
+    - match_secret (`str`) : Secret for for spectate and join button.
+    - buttons (`list`) :  A `list` of `dicts` for buttons on user's profile. A helper object `discordrpc.Button(text:str, url:str)` is provided.
 
-  Return : `True` if rpc successfully connected.
+  Returns : `True` if RPC successfully connected.
 
 - method `RPC.clear()`<br>
   Clear activity status.
@@ -108,10 +111,10 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.
 
-  Return : nothing.
+  Returns : `None`.
 
 - method `RPC.run()`<br>
-  Keeping rpc alive. Not required if another tasks is running on the same file.
+  Keeping the RPC alive. Not required if another tasks is running on the same file.
 
   Parameters :
   - update_every (`int`) : `time.sleep` every inputed second.
@@ -119,7 +122,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   Exceptions :
   - `KeyboardInterrupt` will call `RPC.disconnect`.
 
-  Return : nothing.
+  Returns : `None`.
 
 - variable `self.is_connected`<br>
   Check whether the RPC successfully handshaked and connected to the Discord socket.
@@ -150,9 +153,17 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   - Competing
 
 > [!NOTE]
-> Activity Type `Streaming` and `Custom` currently disabled.<br>
+> Types `Streaming` and `Custom` are currently disabled.<br>
 > [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
 
+## class `discordrpc.Activity`
+- Enum `StatusDisplay`<br>
+  Simplified StatusDisplay type payload in `RPC.set_activity`
+
+  Available values :
+  - Name 
+  - State
+  - Details
 
 ## function `discordrpc.Button()`
 - Simplified button payload in `RPC.set_activity`
@@ -161,7 +172,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   - text (`str`)
   - url (`str`)
 
-  Return : Payload dict.
+  Returns : Payload dict.
 
 > [!NOTE]
 > Discord does not display buttons in your own Activity.<br>
