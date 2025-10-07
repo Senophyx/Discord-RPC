@@ -103,6 +103,11 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
   Returns : `True` if RPC successfully connected.
 
+- method `RPC.clear()`<br>
+  Clear activity status.
+
+  Return : nothing.
+
 - method `RPC.disconnect()`<br>
   Disconnecting and closing RPC socket.
 
@@ -129,10 +134,15 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
   Return : `True` or `False`
 
+- variable `self.User`<br>
+  Returns information about the user to whom the connection occurred.<br>
+  [Available attributes](#class-discordrpcuser)
+
 
 ## class `discordrpc.Activity`
 - Enum `Activity`<br>
-  Simplified Activity type payload in `RPC.set_activity`
+  Simplified Activity type payload in `RPC.set_activity`<br>
+  [Discord docs](https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types)
 
   Available values :
   - Playing
@@ -155,19 +165,39 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
   - State
   - Details
 
-## class `discordrpc.Button()`
-- function `Button()`<br>
-  Simplified button payload in `RPC.set_activity`
+## function `discordrpc.Button()`
+- Simplified button payload in `RPC.set_activity`
 
   Parameters :
-  - text (`test`)
-  - text (`url`)
+  - text (`str`)
+  - url (`str`)
 
   Returns : Payload dict.
 
 > [!NOTE]
 > Discord does not display buttons in your own Activity.<br>
 > You won’t see them yourself — but other users will see them correctly.
+
+
+## function `discordrpc.Progressbar()`
+- Simplified `ts_start` and `ts_end` payload in `RPC.set_activity`
+
+  Parameters :
+  - current (`int`)
+  - duration (`int`)
+
+  Return : Payload dict.
+
+
+## class `discordrpc.User()`
+  Attributes :
+  - id (`int`)
+  - username (`str`)
+  - name (`str`)
+  - avatar (URL `str`)
+  - bot (`bool`)
+  - premium_type (`int`) ([details](https://discord.com/developers/docs/resources/user#user-object-premium-types))
+
 
 ## class `discordrpc.utils`
 - variable `discordrpc.utils.timestamp()`<br>
@@ -181,6 +211,9 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
       ```py
       date_to_timestamp('14/06/2025-00:00:00')
       ```
+
+- function `discordrpc.utils.use_local_time()`<br>
+  Simplified `ts_start` payload in `RPC.set_activity`
 
 
 ## Exceptions & Errors
@@ -216,6 +249,11 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
     How-to-Fix : Check if `Button` function are set correctly
 
+
+- `ProgressbarError`<br>
+    There is an error in the `Progressbar` function, usually because the first parameter (current) is more then second parameter (duration).
+
+    How-to-Fix : Make sure that duration > current
 
 
 ## Links

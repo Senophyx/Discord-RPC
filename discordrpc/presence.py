@@ -7,7 +7,7 @@ import uuid
 import re
 from .exceptions import *
 from .types import *
-from .utils import remove_none
+from .utils import *
 import logging
 import time
 
@@ -28,7 +28,9 @@ class RPC:
         self.app_id = str(app_id)
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
-        self.User={}
+
+        self.user_data = {}
+        self.User = User()
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -42,27 +44,26 @@ class RPC:
     def _setup(self):
         if sys.platform == "win32":
             self.ipc = WindowsPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
-            if not self.ipc.connected:
-                return
-
-            self.User=self.ipc.handshake()
-
         else:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
-            if not self.ipc.connected:
-                return
-
-            self.User=self.ipc.handshake()
+            
+        if not self.ipc.connected: return
+        self.user_data = self.ipc.handshake()
+        self.User = User(self.user_data)
     
     def set_activity(
             self,
             state: str=None, details:str=None, act_type:Activity=Activity.Playing, status_type:StatusDisplay=StatusDisplay.Name,
-            ts_start:int=None, ts_end:int=None,
             large_image:str=None, large_text:str=None, large_url:str=None,
             small_image:str=None, small_text:str=None, small_url:str=None,
+            state_url:str=None, details_url:str=None,
+            ts_start:int=None, ts_end:int=None,
+            # progressbar:dict=None,
+            # use_local_time:bool=False,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
-            match_secret:str=None, buttons:list=None
+            match_secret:str=None, buttons:list=None,
+            clear=False
         ) -> bool:
 
         if type(party_id) == int:
@@ -83,6 +84,8 @@ class RPC:
             "details": details,
             "type": act_type.value,
             "status_display_type": status_type.value,
+            "state_url": state_url,
+            "details_url": details_url,
             "timestamps": {
                 "start": ts_start,
                 "end": ts_end
@@ -111,7 +114,7 @@ class RPC:
             'cmd': 'SET_ACTIVITY',
             'args': {
                 'pid': os.getpid(),
-                'activity': remove_none(act)
+                'activity': None if clear else remove_none(act)
             },
             'nonce': str(uuid.uuid4())
         }
@@ -130,6 +133,9 @@ class RPC:
         except Exception as e:
             log.error('Failed to set RPC')
             self.disconnect()
+
+    def clear(self):
+        self.set_activity(clear=True)
 
     def disconnect(self):
         if not self.ipc.connected:
@@ -222,7 +228,7 @@ class WindowsPipe:
 
         except KeyError:
             if data['code'] == 4000:
-                raise InvalidID
+                raise InvalidID()
 
     def disconnect(self):
         try:
@@ -303,7 +309,7 @@ class UnixPipe:
 
         except KeyError:
             if data['code'] == 4000:
-                raise InvalidID
+                raise InvalidID()
     
     def disconnect(self):
         try:

@@ -28,6 +28,10 @@ class ButtonError(RPCException):
     def __init__(self, message: str = None):
         super().__init__(message=message)
 
+class ProgressbarError(RPCException):
+    def __init__(self, message):
+        super().__init__(message=message)
+
 class InvalidActivityType(RPCException):
     def __init__(self, message):
         super().__init__(f"Activity type must be <Activity>, not {message}")
