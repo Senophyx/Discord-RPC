@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from .exceptions import *
 
 # Credits to qwertyquerty
 # https://github.com/qwertyquerty/pypresence/blob/master/pypresence/utils.py#L12C1-L21C13
@@ -29,4 +30,15 @@ def use_local_time():
     seconds_since_midnight = now.hour * 3600 + now.minute * 60 + now.second
     return {
         "ts_start": int(time.time()) - seconds_since_midnight
+    }
+
+def ProgressBar(current:int, duration:int) -> dict:
+    if int(current) > int(duration):
+        raise ProgressbarError("Current cannot exceed Duration")
+    
+    current_time = int(time.time()) - int(current)
+    finish_time = current_time + int(duration)
+
+    return {
+        "ts_start": current_time, "ts_end": finish_time
     }

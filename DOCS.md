@@ -156,7 +156,6 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 > Types `Streaming` and `Custom` are currently disabled.<br>
 > [Details](https://github.com/Senophyx/Discord-RPC/issues/28#issuecomment-2301287350)
 
-## class `discordrpc.Activity`
 - Enum `StatusDisplay`<br>
   Simplified StatusDisplay type payload in `RPC.set_activity`
 
@@ -179,16 +178,6 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 > You won’t see them yourself — but other users will see them correctly.
 
 
-## function `discordrpc.Progressbar()`
-- Simplified `ts_start` and `ts_end` payload in `RPC.set_activity`
-
-  Parameters :
-  - current (`int`)
-  - duration (`int`)
-
-  Return : Payload dict.
-
-
 ## class `discordrpc.User()`
   Attributes :
   - id (`int`)
@@ -200,7 +189,7 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 
 
 ## class `discordrpc.utils`
-- variable `discordrpc.utils.timestamp()`<br>
+- variable `discordrpc.utils.timestamp`<br>
   Return current time in epoch timestamp (`int`).
 
 - function `discordrpc.utils.date_to_timestamp()`<br>
@@ -215,6 +204,14 @@ Examples can be seen in the repository (`Discord-RPC/examples`) or [here](https:
 - function `discordrpc.utils.use_local_time()`<br>
   Simplified `ts_start` payload in `RPC.set_activity`
 
+- function `discordrpc.utils.ProgressBar()`<br>
+  Simplified `ts_start` and `ts_end` payload in `RPC.set_activity`
+
+  Parameters :
+  - current (`int`)
+  - duration (`int`)
+
+  Return : Payload dict of `ts_start` and `ts_end`.
 
 ## Exceptions & Errors
 - `RPCException`<br>

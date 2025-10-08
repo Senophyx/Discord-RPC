@@ -1,14 +1,15 @@
 import discordrpc
-from discordrpc import Activity, Progressbar
+from discordrpc import Activity
+from discordrpc.utils import ProgressBar
 
 
-rpc = discordrpc.RPC(app_id=1397914682659963050)
+rpc = discordrpc.RPC(app_id=1234567891011)
 
 rpc.set_activity(
     state="With Progressbar",
     details="Music",
     act_type=Activity.Listening,
-    **Progressbar(50, 200)
+    **ProgressBar(50, 200)
 )
 
 rpc.run()
