@@ -2,7 +2,7 @@ import discordrpc
 from discordrpc import use_local_time
 
 
-rpc = discordrpc.RPC(app_id=1397914682659963050)
+rpc = discordrpc.RPC(app_id=123456789)
 
 rpc.set_activity(
     state="Wow! It's shows my clock",

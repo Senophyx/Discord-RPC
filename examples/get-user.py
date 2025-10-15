@@ -1,6 +1,6 @@
 import discordrpc
 
-rpc = discordrpc.RPC(app_id=1397914682659963050)
+rpc = discordrpc.RPC(app_id=123456789)
 
 print(rpc.User.id)
 print(rpc.User.name)
