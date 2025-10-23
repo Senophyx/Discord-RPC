@@ -7,7 +7,7 @@ name = "discord-rpc"
 ##### VERSION #####
 version = "5.5b2"
 ###################
-description = "An Python wrapper for Discord RPC"
+description = "A Python wrapper for the Discord RPC API"
 readme = "README.md"
 requires-python = ">=3.7"
 license = { file = "LICENSE" }
