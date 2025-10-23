@@ -6,7 +6,10 @@
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/Senophyx/discord-rpc?label=Commit%20Activity&logo=github)](https://github.com/Senophyx/discord-rpc)
 
 # Discord RPC
-An Python wrapper for Discord RPC API. Allow you to make own custom RPC.
+
+<img src='https://raw.githubusercontent.com/Senophyx/Discord-RPC/main/media/preview.png' style='width: 30%;' alt='Dicord-RPC preview'>
+
+A Python wrapper for the Discord RPC API that allows you to create your own custom Rich Presence.
 
 [![Changelog](https://img.shields.io/badge/Changelog-blue?style=for-the-badge&logo=github)](https://senophyx.id/projects/discord-rpc/#change-logs)
 [![Documentation](https://img.shields.io/badge/Documentation-gray?style=for-the-badge&logo=googledocs&logoColor=white)](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md)
