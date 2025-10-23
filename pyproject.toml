@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "discord-rpc"
+##### VERSION #####
+version = "5.5b2"
+###################
+description = "An Python wrapper for Discord RPC"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { file = "LICENSE" }
+authors = [{ name = "Senophyx", email = "contact@senophyx.id" }]
+keywords = ["Discord", "rpc", "discord rpc"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+  "Intended Audience :: Other Audience",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python"
+]
+
+# There are currently no required packages in requirements.txt
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Senophyx/discord-rpc"
+Documentation = "https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md"
+"Issue tracker" = "https://github.com/Senophyx/discord-rpc/issues"
+Discord = "https://discord.gg/qpT2AeYZRN"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["discordrpc*"]
+exclude = ["tests*", "examples*", "media*", "venv*", "build*", "dist*", "*egg-info*"]
