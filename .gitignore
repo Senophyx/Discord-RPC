@@ -132,4 +132,4 @@ dmypy.json
 .DS_Store
 
 # For my testing file
-*__test.py
+*__test*
