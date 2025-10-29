@@ -2,7 +2,6 @@
 [![Discord](https://img.shields.io/discord/887650006977347594?label=EterNomm&logo=discord)](https://discord.gg/qpT2AeYZRN)
 [![Total Downloads](https://static.pepy.tech/badge/discord-rpc)](https://pepy.tech/project/discord-rpc)
 [![PyPI](https://img.shields.io/pypi/v/discord-rpc?label=PyPI%20Version&logo=pypi)](https://pypi.org/project/discord-rpc)
-[![PyPI - Status](https://img.shields.io/pypi/status/discord-rpc?label=Packages%20Status&logo=pypi)](https://pypi.org/project/discord-rpc)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/Senophyx/discord-rpc?label=Commit%20Activity&logo=github)](https://github.com/Senophyx/discord-rpc)
 
 # Discord RPC
@@ -12,7 +11,7 @@
 A Python wrapper for the Discord RPC API that allows you to create your own custom Rich Presence.
 
 [![Changelog](https://img.shields.io/badge/Changelog-blue?style=for-the-badge&logo=github)](https://senophyx.id/projects/discord-rpc/#change-logs)
-[![Documentation](https://img.shields.io/badge/Documentation-gray?style=for-the-badge&logo=googledocs&logoColor=white)](https://github.com/Senophyx/Discord-RPC/blob/main/DOCS.md)
+[![Documentation](https://img.shields.io/badge/Documentation-gray?style=for-the-badge&logo=googledocs&logoColor=white)](https://senophyx.id/docs/discord-rpc/)
 
 ## Install
 - PyPI
