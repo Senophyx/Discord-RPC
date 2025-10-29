@@ -16,6 +16,7 @@ A lightweight Python client for Discord’s Rich Presence via the local IPC pipe
     - [`run`](#rpcrun)
     - [`clear`](#rpcclear)
     - [`disconnect`](#rpcdisconnect)
+    - [`User`](#rpcuser)
   - [Buttons](#buttons)
   - [Utils](#utils)
     - [`timestamp`](#utilstimestamp)
@@ -25,7 +26,6 @@ A lightweight Python client for Discord’s Rich Presence via the local IPC pipe
   - [Types](#types)
     - [`Activity`](#discordactivity---enum)
     - [`StatusDisplay`](#discordstatusdisplay---enum)
-    - [`User`](#rpcuser)
   - [Exceptions](#exceptions)
 - [Examples](#examples)
   - [Basic presence](#basic-presence)
@@ -68,7 +68,8 @@ Step-by-step making simple rich presence using Discord-RPC.
 
 3. Make `rpc` variable from `discordrpc.RPC` with your unique ([Application ID](#getting-application-id)).
     ```py
-    rpc = discordrpc.RPC(app_id=1234) #Change app_id to your app id
+    # Change `app_id` to your app id
+    rpc = discordrpc.RPC(app_id=1234)
     ```
 
 4. Customizing activity using `rpc.set_activity()`.
@@ -184,6 +185,29 @@ def disconnect(): -> None
 
 Closes the IPC socket and marks the client as disconnected. If `exit_on_disconnect=True`, the process exits after issuing the close command.
 
+
+### `RPC.User()`
+
+```python
+rpc = discordrpc.RPC()
+rpc.User()
+```
+
+A lightweight `User` model populated after handshake, with attributes commonly provided by Discord (e.g., `id`, `name`, `global_name`, `avatar`, `bot`, `premium_type`). The `avatar` helper builds the correct CDN URL based on hash/animation.
+
+Use it as variable from [`RPC.__init__`](#rpc__init__).
+
+Attributes :
+  - id (`int`)
+  - username (`str`)
+  - name (`str`)
+  - avatar (URL `str`)
+  - bot (`bool`)
+  - premium_type (`int`) ([details](https://discord.com/developers/docs/resources/user#user-object-premium-types))
+
+[Example](https://github.com/Senophyx/Discord-RPC/blob/main/examples/get-user.py)
+
+
 ---
 
 ## Buttons
@@ -289,29 +313,6 @@ Attributes :
 - Name
 - State
 - Details
-
-
-
-### `rpc.User()`
-
-```python
-rpc = discordrpc.RPC()
-rpc.User()
-```
-
-A lightweight `User` model populated after handshake, with attributes commonly provided by Discord (e.g., `id`, `name`, `global_name`, `avatar`, `bot`, `premium_type`). The `avatar` helper builds the correct CDN URL based on hash/animation.
-
-Use it as variable from [`RPC.__init__`](#rpc__init__).
-
-Attributes :
-  - id (`int`)
-  - username (`str`)
-  - name (`str`)
-  - avatar (URL `str`)
-  - bot (`bool`)
-  - premium_type (`int`) ([details](https://discord.com/developers/docs/resources/user#user-object-premium-types))
-
-[Example](https://github.com/Senophyx/Discord-RPC/blob/main/examples/get-user.py)
 
 ---
 
