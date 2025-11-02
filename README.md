@@ -41,36 +41,11 @@ More examples [here](https://github.com/Senophyx/discord-rpc/tree/main/examples)
 ## Contributors
 Big thanks for contributors who help this project keep updated, and maintained.
 
+<a href="https://github.com/senophyx/Discord-RPC/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=senophyx/Discord-RPC&columns=5" />
+</a>
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="25%"><a href="https://pukima.site"><img src="https://avatars.githubusercontent.com/u/58347116?v=4?s=100" width="100px;" alt="Pukima"/><br /><sub><b>Pukima</b></sub></a><br /><a href="#bug-Pukimaa" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://github.com/k9ur"><img src="https://avatars.githubusercontent.com/u/67886793?v=4?s=100" width="100px;" alt="k9er"/><br /><sub><b>k9er</b></sub></a><br /><a href="#doc-k9ur" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://www.kaleko.dev/"><img src="https://avatars.githubusercontent.com/u/54416665?v=4?s=100" width="100px;" alt="Kale"/><br /><sub><b>Kale</b></sub></a><br /><a href="#bug-Kale-Ko" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://github.com/TaIFeel"><img src="https://avatars.githubusercontent.com/u/94287800?v=4?s=100" width="100px;" alt="TaIFeel"/><br /><sub><b>TaIFeel</b></sub></a><br /><a href="#code-TaIFeel" title="Code">💻</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="25%"><a href="https://buymeacoffee.com/saves"><img src="https://avatars.githubusercontent.com/u/8108358?v=4?s=100" width="100px;" alt="Jesusaves"/><br /><sub><b>Jesusaves</b></sub></a><br /><a href="#bug-pazkero" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="25%"><a href="http://dipeshaggarwal.com"><img src="https://avatars.githubusercontent.com/u/1311129?v=4?s=100" width="100px;" alt="Dipesh Aggarwal"/><br /><sub><b>Dipesh Aggarwal</b></sub></a><br /><a href="#code-DipeshAggarwal" title="Code">💻</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://github.com/maxsspeaker"><img src="https://avatars.githubusercontent.com/u/56259377?v=4?s=100" width="100px;" alt="Maxsspeaker"/><br /><sub><b>Maxsspeaker</b></sub></a><br /><a href="#code-maxsspeaker" title="Code">💻</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://fixator10.ru"><img src="https://avatars.githubusercontent.com/u/11073934?v=4?s=100" width="100px;" alt="Fixator10"/><br /><sub><b>Fixator10</b></sub></a><br /><a href="#doc-fixator10" title="Documentation">📖</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="25%"><a href="http://psychon-night.github.io"><img src="https://avatars.githubusercontent.com/u/49412250?v=4?s=100" width="100px;" alt="SleepyStatic"/><br /><sub><b>SleepyStatic</b></sub></a><br /><a href="#code-psychon-night" title="Code">💻</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://t.me/SuperZombi"><img src="https://avatars.githubusercontent.com/u/75096786?v=4?s=100" width="100px;" alt="Super Zombi"/><br /><sub><b>Super Zombi</b></sub></a><br /><a href="#code-SuperZombi" title="Code">💻</a></td>
-      <td align="center" valign="top" width="25%"><a href="https://github.com/jannuary"><img src="https://avatars.githubusercontent.com/u/27908024?v=4?s=100" width="100px;" alt="jannuary"/><br /><sub><b>jannuary</b></sub></a><br /><a href="#code-jannuary" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- Made with [contrib.rocks](https://contrib.rocks). -->
 
 ## Links
 - [Github Repository](https://github.com/Senophyx/Discord-RPC)
