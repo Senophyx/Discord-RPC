@@ -41,11 +41,11 @@ class Application():
         self.id: int = int(data.get("id", 0))
         self.name: str = data.get("name")
         self.description: str = data.get("description")
-        self.avatar: str = self._parse_avatar(data.get("icon"))
+        self.icon: str = self._parse_icon(data.get("icon"))
         self.verified: bool = data.get("is_verified", False)
         self.public: bool = data.get("bot_public", False)
 
-    def _parse_avatar(self, icon_id:str, size:int=256) -> str:
+    def _parse_icon(self, icon_id:str, size:int=512) -> str:
         if icon_id:
             return f"https://cdn.discordapp.com/app-icons/{self.id}/{icon_id}.png?size={size}"
         return "https://cdn.discordapp.com/embed/avatars/1.png"
