@@ -32,6 +32,9 @@ class RPC:
         self.user_data = {}
         self.User = User()
 
+        self.app_info = {}
+        self.App = Application()
+
         if debug == True:
             log.setLevel(logging.DEBUG)
         
@@ -50,6 +53,9 @@ class RPC:
         if not self.ipc.connected: return
         self.user_data = self.ipc.handshake()
         self.User = User(self.user_data)
+
+        self.app_info = get_app_info(self.app_id)
+        self.App = Application(self.app_info)
     
     def set_activity(
             self,

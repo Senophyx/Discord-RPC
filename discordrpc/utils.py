@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+import requests
 from .exceptions import *
 
 # Credits to qwertyquerty
@@ -42,3 +43,12 @@ def ProgressBar(current:int, duration:int) -> dict:
     return {
         "ts_start": current_time, "ts_end": finish_time
     }
+
+def get_app_info(app_id):
+    try:
+        r = requests.get(f"https://discord.com/api/v10/applications/{app_id}/rpc")
+        if r.ok:
+            data = r.json()
+            return data
+    except Exception as e:
+        print(e)

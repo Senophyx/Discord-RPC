@@ -34,3 +34,21 @@ class User():
 
     def __str__(self):
         return f"User({self.name})"
+
+class Application():
+    def __init__(self, data:dict=None):
+        data = data or {}
+        self.id: int = int(data.get("id", 0))
+        self.name: str = data.get("name")
+        self.description: str = data.get("description")
+        self.avatar: str = self._parse_avatar(data.get("icon"))
+        self.verified: bool = data.get("is_verified", False)
+        self.public: bool = data.get("bot_public", False)
+
+    def _parse_avatar(self, icon_id:str, size:int=256) -> str:
+        if icon_id:
+            return f"https://cdn.discordapp.com/app-icons/{self.id}/{icon_id}.png?size={size}"
+        return "https://cdn.discordapp.com/embed/avatars/1.png"
+
+    def __str__(self):
+        return f"Application({self.name})"
