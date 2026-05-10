@@ -58,8 +58,6 @@ class RPC:
             small_image:str=None, small_text:str=None, small_url:str=None,
             state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
-            # progressbar:dict=None,
-            # use_local_time:bool=False,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None,
