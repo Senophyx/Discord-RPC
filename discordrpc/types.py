@@ -23,7 +23,7 @@ class User():
         self.name: str = data.get('global_name')
         self.avatar: str = self._parse_avatar(data)
         self.bot: bool = data.get('bot', False)
-        self.premium_type: int = int(data.get('premium_type', 0)) # https://discord.com/developers/docs/resources/user#user-object-premium-types
+        self.premium_type: int = int(data.get('premium_type', 0))
 
     def _parse_avatar(self, data:dict, size:int=1024) -> str:
         if data.get('avatar'):

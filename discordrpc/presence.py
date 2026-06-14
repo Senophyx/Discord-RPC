@@ -24,18 +24,16 @@ logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcN
 
 
 class RPC:
-    def __init__(self, app_id:int, debug:bool=False, output:bool=True,
-        exit_if_discord_close:bool=True, exit_on_disconnect:bool=True
-    ):
+    def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True, exit_on_disconnect:bool=True):
         self.app_id = str(app_id)
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
 
         self.user_data = {}
         self.User = User()
-
+        
         self.app_info = {}
-        self.App = Application()
+        self.App = None
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -55,19 +53,22 @@ class RPC:
         if not self.ipc.connected: return
         self.user_data = self.ipc.handshake()
         self.User = User(self.user_data)
-
-        self.app_info = get_app_info(self.app_id)
-        self.App = Application(self.app_info)
     
+    def get_app_info(self):
+        if not self.app_info:
+            self.app_info = get_app_info(self.app_id)
+            self.App = Application(self.app_info)
+        return self.App
+
     def set_activity(
             self,
-            state: str=None, details:str=None,
-            act_type:Activity=Activity.Playing,
-            status_type:StatusDisplay=StatusDisplay.Name,
+            state: str=None, details:str=None, act_type:Activity=Activity.Playing, status_type:StatusDisplay=StatusDisplay.Name,
             large_image:str=None, large_text:str=None, large_url:str=None,
             small_image:str=None, small_text:str=None, small_url:str=None,
             state_url:str=None, details_url:str=None,
             ts_start:int=None, ts_end:int=None,
+            # progressbar:dict=None,
+            # use_local_time:bool=False,
             party_id:str=None, party_size:list=None,
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None,
