@@ -35,7 +35,7 @@ def use_local_time():
         "ts_start": int(time.time()) - seconds_since_midnight
     }
 
-def ProgressBar(current:int, duration:int) -> dict:
+def progress_bar(current:int, duration:int) -> dict:
     if int(current) > int(duration):
         raise ProgressbarError("Current cannot exceed Duration")
     
