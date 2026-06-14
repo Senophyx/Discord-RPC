@@ -23,7 +23,7 @@ class User():
         self.name: str = data.get('global_name')
         self.avatar: str = self._parse_avatar(data)
         self.bot: bool = data.get('bot', False)
-        self.premium_type: int = int(data.get('premium_type', 0)) # https://discord.com/developers/docs/resources/user#user-object-premium-types
+        self.premium_type: int = int(data.get('premium_type', 0))
 
     def _parse_avatar(self, data:dict, size:int=1024) -> str:
         if data.get('avatar'):
@@ -34,3 +34,21 @@ class User():
 
     def __str__(self):
         return f"User({self.name})"
+
+class Application():
+    def __init__(self, data:dict=None):
+        data = data or {}
+        self.id: int = int(data.get("id", 0))
+        self.name: str = data.get("name")
+        self.description: str = data.get("description")
+        self.icon: str = self._parse_icon(data.get("icon"))
+        self.verified: bool = data.get("is_verified", False)
+        self.public: bool = data.get("bot_public", False)
+
+    def _parse_icon(self, icon_id:str, size:int=512) -> str:
+        if icon_id:
+            return f"https://cdn.discordapp.com/app-icons/{self.id}/{icon_id}.png?size={size}"
+        return "https://cdn.discordapp.com/embed/avatars/1.png"
+
+    def __str__(self):
+        return f"Application({self.name})"

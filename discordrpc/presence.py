@@ -31,6 +31,9 @@ class RPC:
 
         self.user_data = {}
         self.User = User()
+        
+        self.app_info = {}
+        self.App = None
 
         if debug == True:
             log.setLevel(logging.DEBUG)
@@ -51,6 +54,12 @@ class RPC:
         self.user_data = self.ipc.handshake()
         self.User = User(self.user_data)
     
+    def get_app_info(self):
+        if not self.app_info:
+            self.app_info = get_app_info(self.app_id)
+            self.App = Application(self.app_info)
+        return self.App
+
     def set_activity(
             self,
             state: str=None, details:str=None, act_type:Activity=Activity.Playing, status_type:StatusDisplay=StatusDisplay.Name,
