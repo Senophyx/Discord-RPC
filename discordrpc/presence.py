@@ -17,6 +17,8 @@ import time
 OP_HANDSHAKE = 0
 OP_FRAME = 1
 OP_CLOSE = 2
+OP_PING = 3
+OP_PONG = 4
 
 ### Logger ###
 log = logging.getLogger("Discord RPC")
@@ -171,10 +173,21 @@ class RPC:
         self.ipc.disconnect()
         self.is_running = False
 
-    def run(self, update_every:int=1):
+    def run(self, update_every:int=1, ping_every:int=15):
         try:
+            last_ping = time.time()
             while True:
                 time.sleep(update_every)
+                
+                # Send a PING heartbeat every `ping_every` seconds to keep the socket alive
+                if self.ipc.connected and (time.time() - last_ping >= ping_every):
+                    payload = {"v": 1, "client_id": self.app_id}
+                    try:
+                        self.ipc._send(payload, OP_PING)
+                        last_ping = time.time()
+                    except Exception as e:
+                        log.debug(f"Heartbeat PING failed: {e}")
+                        self.disconnect()
         except KeyboardInterrupt:
             self.disconnect()
 
