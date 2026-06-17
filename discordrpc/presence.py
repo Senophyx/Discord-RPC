@@ -5,9 +5,12 @@ import json
 import struct
 import uuid
 from typing import Optional
-from .exceptions import *
-from .types import *
-from .utils import *
+from .exceptions import (
+    RPCException, InvalidID, DiscordNotOpened,
+    ButtonError, InvalidActivityType, ActivityTypeDisabled,
+)
+from .types import Activity, StatusDisplay, User, Application
+from .utils import remove_none, get_app_info
 import logging
 import time
 

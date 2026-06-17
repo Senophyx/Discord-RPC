@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 import logging
-from .exceptions import *
+from .exceptions import ProgressbarError
 
 log = logging.getLogger("Discord RPC")
 
