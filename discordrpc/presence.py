@@ -4,6 +4,7 @@ import socket
 import json
 import struct
 import uuid
+from typing import Optional
 from .exceptions import *
 from .types import *
 from .utils import *
@@ -70,7 +71,7 @@ class RPC:
             join_secret:str=None, spectate_secret:str=None,
             match_secret:str=None, buttons:list=None,
             clear=False
-        ) -> bool:
+        ) -> Optional[bool]:
 
         if type(act_type) != Activity:
             raise InvalidActivityType(type(act_type))
