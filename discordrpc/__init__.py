@@ -1,6 +1,6 @@
 from importlib.metadata import version as _pkg_ver, PackageNotFoundError
 from .presence import RPC
-from .button import Button
+from .button import button
 from .exceptions import (
     RPCException, Error, DiscordNotOpened, ActivityError,
     InvalidURL, InvalidID, ButtonError, ProgressbarError,
