@@ -6,17 +6,15 @@ import discordrpc
 rpc = discordrpc.RPC(app_id=123456789101112, output=True)
 
 
-button = discordrpc.button(
-  button_one_label="Repository",
-  button_one_url="https://github.com/Senophyx/discord-rpc",
-  button_two_label="Discord Server",
-  button_two_url="https://discord.gg/qpT2AeYZRN"
-  )
+button_list = [
+  discordrpc.button("Repository", "https://github.com/Senophyx/discord-rpc"),
+  discordrpc.button("Discord Server", "https://discord.gg/qpT2AeYZRN")
+]
 
 rpc.set_activity(
       state="Made by Senophyx",
       details="Discord-RPC",
-      buttons=button
+      buttons=button_list
     )
 
 
