@@ -84,6 +84,12 @@ class RPC:
             match_secret:str=None, buttons:list=None,
             clear=False
         ) -> Optional[bool]:
+        """
+        Set or update the Rich Presence.
+        
+        Images (`large_image`, `small_image`) can be an uploaded asset key from your Discord Developer Portal, 
+        or an external direct URL (e.g., https://example.com/image.gif). Supports PNG, JPEG, WebP, GIF, and AVIF.
+        """
 
         if type(act_type) != Activity:
             raise InvalidActivityType(type(act_type))
