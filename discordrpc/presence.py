@@ -284,13 +284,29 @@ class UnixPipe:
 
 
     def _recv(self):
-        recv_data = self.socket.recv(1024)
-        enc_header = recv_data[:8]
+        enc_header = b''
+        header_size = 8
+
+        while header_size:
+            chunk = self.socket.recv(header_size)
+            if not chunk:
+                break
+            enc_header += chunk
+            header_size -= len(chunk)
+
         dec_header = struct.unpack("<ii", enc_header)
-        enc_data = recv_data[8:]
+        enc_data = b''
+        remain_packet_size = int(dec_header[1])
+
+        while remain_packet_size:
+            chunk = self.socket.recv(remain_packet_size)
+            if not chunk:
+                break
+            enc_data += chunk
+            remain_packet_size -= len(chunk)
 
         output = json.loads(enc_data.decode('UTF-8'))
-        
+
         log.debug(output)
         return output
     
