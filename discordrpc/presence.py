@@ -4,7 +4,6 @@ import socket
 import json
 import struct
 import uuid
-import re
 from .exceptions import *
 from .types import *
 from .utils import *
@@ -158,15 +157,75 @@ class RPC:
         except KeyboardInterrupt:
             self.disconnect()
 
-class WindowsPipe:
+
+class _BasePipe:
     def __init__(self, app_id, exit_if_discord_close, exit_on_disconnect):
         self.app_id = app_id
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
         self.connected = True
 
+        if not self._connect_pipe():
+            self.connected = False
+
+    def _connect_pipe(self):
+        """Override in subclass to establish the pipe connection. Returns True on success."""
+        raise NotImplementedError
+
+    def _send(self, payload, op=OP_FRAME):
+        log.debug(payload)
+
+        payload = json.dumps(payload).encode('UTF-8')
+        payload = struct.pack('<ii', op, len(payload)) + payload
+
+        self._write(payload)
+
+    def _write(self, data: bytes):
+        """Override in subclass to write bytes to the pipe."""
+        raise NotImplementedError
+
+    def _recv(self):
+        """Override in subclass to receive data from the pipe."""
+        raise NotImplementedError
+
+    def handshake(self):
+        self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
+        data = self._recv()
+
+        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
+            user = data.get('data', {}).get('user')
+            if user:
+                log.info(f"Connected to {user.get('username')} ({user.get('id')})")
+                return user
+
+        if data.get('code') == 4000:
+            raise InvalidID()
+
+        raise RPCException()
+
+    def disconnect(self):
+        try:
+            self._send({}, OP_CLOSE)
+            self._close()
+        except Exception as e:
+            log.debug("Socket closed before command was received")
+
+        self.socket = None
+        self.connected = False
+
+        log.warning("Closing RPC")
+        if self.exit_on_disconnect:
+            sys.exit()
+
+    def _close(self):
+        """Override in subclass to close the socket."""
+        raise NotImplementedError
+
+
+class WindowsPipe(_BasePipe):
+    def _connect_pipe(self):
         base_path = R'\\?\pipe\discord-ipc-{}'
-        
+
         for i in range(10):
             path = base_path.format(i)
 
@@ -186,10 +245,18 @@ class WindowsPipe:
                 raise DiscordNotOpened()
             else:
                 log.warning("Discord is closed")
-                self.connected = False
+            return False
 
         if self.connected:
             log.debug(f"Connected to {path}")
+        return True
+
+    def _write(self, data: bytes):
+        self.socket.write(data)
+        self.socket.flush()
+
+    def _close(self):
+        self.socket.close()
 
     def _recv(self):
         enc_header = b''
@@ -212,55 +279,19 @@ class WindowsPipe:
         log.debug(output)
         return output
 
-    def _send(self, payload, op=OP_FRAME):
-        log.debug(payload)
 
-        payload = json.dumps(payload).encode('UTF-8')
-        payload = struct.pack('<ii', op, len(payload)) + payload
-
-        self.socket.write(payload)
-        self.socket.flush()
-
-    def handshake(self):
-        self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
-        data = self._recv()
-
-        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
-            user = data.get('data', {}).get('user')
-            if user:
-                log.info(f"Connected to {user.get('username')} ({user.get('id')})")
-                return user
-
-        if data.get('code') == 4000:
-            raise InvalidID()
-
-        raise RPCException()
-
-    def disconnect(self):
-        try:
-            self._send({}, OP_CLOSE)
-            self.socket.close()
-        except Exception as e:
-            log.debug("Socket closed before command was received")
-
-        self.socket = None
-        self.connected = False
-
-        log.warning("Closing RPC")
-        if self.exit_on_disconnect:
-            sys.exit()
-
-class UnixPipe:
-    def __init__(self, app_id, exit_if_discord_close, exit_on_disconnect):
-        self.app_id = app_id
-        self.exit_if_discord_close = exit_if_discord_close
-        self.exit_on_disconnect = exit_on_disconnect
-        self.connected = True
-
+class UnixPipe(_BasePipe):
+    def _connect_pipe(self):
         self.socket = socket.socket(socket.AF_UNIX)
 
-        base_path = path = os.environ.get('XDG_RUNTIME_DIR') or os.environ.get('TMPDIR') or os.environ.get('TMP') or os.environ.get('TEMP') or '/tmp'
-        base_path = re.sub(r'\/$', '', path) + '/discord-ipc-{0}'
+        raw_path = (
+            os.environ.get('XDG_RUNTIME_DIR')
+            or os.environ.get('TMPDIR')
+            or os.environ.get('TMP')
+            or os.environ.get('TEMP')
+            or '/tmp'
+        ).rstrip('/')
+        base_path = raw_path + '/discord-ipc-{0}'
 
         for i in range(10):
             path = base_path.format(i)
@@ -276,11 +307,18 @@ class UnixPipe:
                 raise DiscordNotOpened()
             else:
                 log.warning("Discord is closed")
-                self.connected = False
+            return False
 
         if self.connected:
             log.debug(f"Connected to {path}")
+        return True
 
+    def _write(self, data: bytes):
+        self.socket.send(data)
+
+    def _close(self):
+        self.socket.shutdown(socket.SHUT_RDWR)
+        self.socket.close()
 
     def _recv(self):
         enc_header = b''
@@ -308,41 +346,3 @@ class UnixPipe:
 
         log.debug(output)
         return output
-    
-    def _send(self, payload, op=OP_FRAME):
-        log.debug(payload)
-
-        payload = json.dumps(payload).encode('UTF-8')
-        payload = struct.pack('<ii', op, len(payload)) + payload
-
-        self.socket.send(payload)
-    
-    def handshake(self):
-        self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
-        data = self._recv()
-
-        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
-            user = data.get('data', {}).get('user')
-            if user:
-                log.info(f"Connected to {user.get('username')} ({user.get('id')})")
-                return user
-
-        if data.get('code') == 4000:
-            raise InvalidID()
-
-        raise RPCException()
-    
-    def disconnect(self):
-        try:
-            self._send({}, OP_CLOSE)
-            self.socket.shutdown(socket.SHUT_RDWR)
-            self.socket.close()
-        except Exception as e:
-            log.debug("Socket closed before command was received")
-
-        self.socket = None
-        self.connected = False
-
-        log.warning("Closing RPC")
-        if self.exit_on_disconnect:
-            sys.exit()
