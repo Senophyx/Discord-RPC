@@ -207,10 +207,7 @@ class _BasePipe:
         self.app_id = app_id
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
-        self.connected = True
-
-        if not self._connect_pipe():
-            self.connected = False
+        self.connected = self._connect_pipe()
 
     def _connect_pipe(self):
         """Override in subclass to establish the pipe connection. Returns True on success."""
