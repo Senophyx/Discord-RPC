@@ -72,9 +72,6 @@ class RPC:
             clear=False
         ) -> bool:
 
-        if type(party_id) == int:
-            party_id = str(party_id)
-
         if type(act_type) != Activity:
             raise InvalidActivityType(type(act_type))
 
@@ -84,7 +81,63 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
-            
+
+        activity = None
+        if not clear:
+            activity = self._build_activity(
+                state=state, details=details,
+                act_type=act_type, status_type=status_type,
+                large_image=large_image, large_text=large_text, large_url=large_url,
+                small_image=small_image, small_text=small_text, small_url=small_url,
+                state_url=state_url, details_url=details_url,
+                ts_start=ts_start, ts_end=ts_end,
+                party_id=party_id, party_size=party_size,
+                join_secret=join_secret, spectate_secret=spectate_secret,
+                match_secret=match_secret,
+                buttons=buttons,
+            )
+
+        payload = {
+            'cmd': 'SET_ACTIVITY',
+            'args': {
+                'pid': os.getpid(),
+                'activity': activity
+            },
+            'nonce': str(uuid.uuid4())
+        }
+
+        if not self.ipc.connected and TRY_RECONNECTING:
+            self._setup()
+
+        if not self.ipc.connected:
+            return
+
+        try:
+            self.ipc._send(payload, OP_FRAME)
+            self.is_running = True
+            log.info('RPC set')
+            return True
+        except Exception as e:
+            log.error('Failed to set RPC')
+            self.disconnect()
+
+    @staticmethod
+    def _build_activity(
+            state=None, details=None,
+            act_type=Activity.Playing, status_type=StatusDisplay.Name,
+            large_image=None, large_text=None, large_url=None,
+            small_image=None, small_text=None, small_url=None,
+            state_url=None, details_url=None,
+            ts_start=None, ts_end=None,
+            party_id=None, party_size=None,
+            join_secret=None, spectate_secret=None,
+            match_secret=None,
+            buttons=None,
+        ) -> dict:
+
+        if type(party_id) == int:
+            party_id = str(party_id)
+
         act = {
             "state": state,
             "details": details,
@@ -116,29 +169,7 @@ class RPC:
             "buttons": buttons
         }
 
-        payload = {
-            'cmd': 'SET_ACTIVITY',
-            'args': {
-                'pid': os.getpid(),
-                'activity': None if clear else remove_none(act)
-            },
-            'nonce': str(uuid.uuid4())
-        }
-
-        if not self.ipc.connected and TRY_RECONNECTING:
-            self._setup()
-
-        if not self.ipc.connected:
-            return
-
-        try:
-            self.ipc._send(payload, OP_FRAME)
-            self.is_running = True
-            log.info('RPC set')
-            return True
-        except Exception as e:
-            log.error('Failed to set RPC')
-            self.disconnect()
+        return remove_none(act)
 
     def clear(self):
         self.set_activity(clear=True)
