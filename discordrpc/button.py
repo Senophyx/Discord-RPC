@@ -1,4 +1,4 @@
-from .exceptions import RPCException, InvalidURL
+from .exceptions import InvalidURL
 
 
 def button(text:str, url:str):
