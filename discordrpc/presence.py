@@ -15,8 +15,6 @@ OP_HANDSHAKE = 0
 OP_FRAME = 1
 OP_CLOSE = 2
 
-TRY_RECONNECTING = True
-
 ### Logger ###
 log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
@@ -29,6 +27,7 @@ class RPC:
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
 
+        self.try_reconnecting = True
         self.user_data = {}
         self.User = User()
         
@@ -107,7 +106,7 @@ class RPC:
             'nonce': str(uuid.uuid4())
         }
 
-        if not self.ipc.connected and TRY_RECONNECTING:
+        if not self.ipc.connected and self.try_reconnecting:
             self._setup()
 
         if not self.ipc.connected:
