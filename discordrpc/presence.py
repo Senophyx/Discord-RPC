@@ -23,11 +23,12 @@ OP_PONG = 4
 ### Logger ###
 log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
-log.addHandler(logging.NullHandler())
 
-# Guard: only add the output handler once across all RPC instances
-_log_output_handler_added = False
-
+# Setup specific handler for Discord RPC logger
+_handler = logging.StreamHandler()
+_formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+_handler.setFormatter(_formatter)
+log.addHandler(_handler)
 
 class RPC:
     def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True, exit_on_disconnect:bool=True):
@@ -37,20 +38,12 @@ class RPC:
 
         self.try_reconnecting = True
         self.User = User()
-        
         self.App = None
 
-        if debug == True:
+        if debug:
             log.setLevel(logging.DEBUG)
         
-        if output and not _log_output_handler_added:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-            handler.setFormatter(formatter)
-            log.addHandler(handler)
-            global _log_output_handler_added
-            _log_output_handler_added = True
-        elif not output:
+        if not output:
             log.disabled = True
 
         self.is_running = False
