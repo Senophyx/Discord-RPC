@@ -34,10 +34,8 @@ class RPC:
         self.exit_on_disconnect = exit_on_disconnect
 
         self.try_reconnecting = True
-        self.user_data = {}
         self.User = User()
         
-        self.app_info = {}
         self.App = None
 
         if debug == True:
@@ -63,13 +61,13 @@ class RPC:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
             
         if not self.ipc.connected: return
-        self.user_data = self.ipc.handshake()
-        self.User = User(self.user_data)
+        user_data = self.ipc.handshake()
+        self.User = User(user_data)
     
     def get_app_info(self):
-        if not self.app_info:
-            self.app_info = get_app_info(self.app_id)
-            self.App = Application(self.app_info)
+        if not self.App:
+            app_info = get_app_info(self.app_id)
+            self.App = Application(app_info)
         return self.App
 
     def set_activity(
@@ -103,18 +101,40 @@ class RPC:
 
         activity = None
         if not clear:
-            activity = self._build_activity(
-                state=state, details=details,
-                act_type=act_type, status_type=status_type,
-                large_image=large_image, large_text=large_text, large_url=large_url,
-                small_image=small_image, small_text=small_text, small_url=small_url,
-                state_url=state_url, details_url=details_url,
-                ts_start=ts_start, ts_end=ts_end,
-                party_id=party_id, party_size=party_size,
-                join_secret=join_secret, spectate_secret=spectate_secret,
-                match_secret=match_secret,
-                buttons=buttons,
-            )
+            if type(party_id) == int:
+                party_id = str(party_id)
+
+            act = {
+                "state": state,
+                "details": details,
+                "type": act_type.value,
+                "status_display_type": status_type.value,
+                "state_url": state_url,
+                "details_url": details_url,
+                "timestamps": {
+                    "start": ts_start,
+                    "end": ts_end
+                },
+                "assets": {
+                    "large_image": large_image,
+                    "large_text": large_text,
+                    "large_url": large_url,
+                    "small_image": small_image,
+                    "small_text": small_text,
+                    "small_url": small_url
+                },
+                "party": {
+                    "id": party_id,
+                    "size": party_size
+                },
+                "secrets": {
+                    "join": join_secret,
+                    "spectate": spectate_secret,
+                    "match": match_secret
+                },
+                "buttons": buttons
+            }
+            activity = remove_none(act)
 
         payload = {
             'cmd': 'SET_ACTIVITY',
@@ -140,55 +160,6 @@ class RPC:
             log.error('Failed to set RPC')
             self.disconnect()
 
-    @staticmethod
-    def _build_activity(
-            state=None, details=None,
-            act_type=Activity.Playing, status_type=StatusDisplay.Name,
-            large_image=None, large_text=None, large_url=None,
-            small_image=None, small_text=None, small_url=None,
-            state_url=None, details_url=None,
-            ts_start=None, ts_end=None,
-            party_id=None, party_size=None,
-            join_secret=None, spectate_secret=None,
-            match_secret=None,
-            buttons=None,
-        ) -> dict:
-
-        if type(party_id) == int:
-            party_id = str(party_id)
-
-        act = {
-            "state": state,
-            "details": details,
-            "type": act_type.value,
-            "status_display_type": status_type.value,
-            "state_url": state_url,
-            "details_url": details_url,
-            "timestamps": {
-                "start": ts_start,
-                "end": ts_end
-            },
-            "assets": {
-                "large_image": large_image,
-                "large_text": large_text,
-                "large_url": large_url,
-                "small_image": small_image,
-                "small_text": small_text,
-                "small_url": small_url
-            },
-            "party": {
-                "id": party_id,
-                "size": party_size
-            },
-            "secrets": {
-                "join": join_secret,
-                "spectate": spectate_secret,
-                "match": match_secret
-            },
-            "buttons": buttons
-        }
-
-        return remove_none(act)
 
     def clear(self):
         self.set_activity(clear=True)
