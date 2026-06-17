@@ -23,6 +23,9 @@ log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
 log.addHandler(logging.NullHandler())
 
+# Guard: only add the output handler once across all RPC instances
+_log_output_handler_added = False
+
 
 class RPC:
     def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True, exit_on_disconnect:bool=True):
@@ -40,12 +43,14 @@ class RPC:
         if debug == True:
             log.setLevel(logging.DEBUG)
         
-        if output:
+        if output and not _log_output_handler_added:
             handler = logging.StreamHandler()
             formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
             handler.setFormatter(formatter)
             log.addHandler(handler)
-        else:
+            global _log_output_handler_added
+            _log_output_handler_added = True
+        elif not output:
             log.disabled = True
 
         self.is_running = False
@@ -286,8 +291,7 @@ class WindowsPipe(_BasePipe):
                 log.warning("Discord is closed")
             return False
 
-        if self.connected:
-            log.debug(f"Connected to {path}")
+        log.debug(f"Connected to {path}")
         return True
 
     def _write(self, data: bytes):
@@ -348,8 +352,7 @@ class UnixPipe(_BasePipe):
                 log.warning("Discord is closed")
             return False
 
-        if self.connected:
-            log.debug(f"Connected to {path}")
+        log.debug(f"Connected to {path}")
         return True
 
     def _write(self, data: bytes):
