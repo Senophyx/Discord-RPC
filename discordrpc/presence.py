@@ -225,17 +225,16 @@ class WindowsPipe:
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
         data = self._recv()
 
-        try:
-            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
-                return data['data']['user']
-            
-            else:
-                raise RPCException()
+        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
+            user = data.get('data', {}).get('user')
+            if user:
+                log.info(f"Connected to {user.get('username')} ({user.get('id')})")
+                return user
 
-        except KeyError:
-            if data['code'] == 4000:
-                raise InvalidID()
+        if data.get('code') == 4000:
+            raise InvalidID()
+
+        raise RPCException()
 
     def disconnect(self):
         try:
@@ -322,17 +321,16 @@ class UnixPipe:
         self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
         data = self._recv()
 
-        try:
-            if data['cmd'] == 'DISPATCH' and data['evt'] == 'READY':
-                log.info(f"Connected to {data['data']['user']['username']} ({data['data']['user']['id']})")
-                return data['data']['user']
-            
-            else:
-                raise RPCException()
+        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
+            user = data.get('data', {}).get('user')
+            if user:
+                log.info(f"Connected to {user.get('username')} ({user.get('id')})")
+                return user
 
-        except KeyError:
-            if data['code'] == 4000:
-                raise InvalidID()
+        if data.get('code') == 4000:
+            raise InvalidID()
+
+        raise RPCException()
     
     def disconnect(self):
         try:
