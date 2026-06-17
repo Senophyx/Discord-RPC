@@ -25,10 +25,10 @@ log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
 
 # Setup specific handler for Discord RPC logger
-_handler = logging.StreamHandler()
-_formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-_handler.setFormatter(_formatter)
-log.addHandler(_handler)
+_log_handler = logging.StreamHandler()
+_log_formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+_log_handler.setFormatter(_log_formatter)
+log.addHandler(_log_handler)
 
 class RPC:
     def __init__(self, app_id:int, debug:bool=False, output:bool=True, exit_if_discord_close:bool=True, exit_on_disconnect:bool=True):
