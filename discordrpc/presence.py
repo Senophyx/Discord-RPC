@@ -21,7 +21,7 @@ OP_CLOSE = 2
 ### Logger ###
 log = logging.getLogger("Discord RPC")
 log.setLevel(logging.INFO)
-logging.basicConfig(format="%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+log.addHandler(logging.NullHandler())
 
 
 class RPC:
@@ -40,7 +40,12 @@ class RPC:
         if debug == True:
             log.setLevel(logging.DEBUG)
         
-        if output == False:
+        if output:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter("%(asctime)s :: [%(levelname)s @ %(filename)s.%(funcName)s:%(lineno)d] :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+            handler.setFormatter(formatter)
+            log.addHandler(handler)
+        else:
             log.disabled = True
 
         self.is_running = False
