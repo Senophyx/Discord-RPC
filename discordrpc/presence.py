@@ -66,7 +66,7 @@ class RPC:
         return self.App
 
     def set_activity(
-            self,
+            self, name: str=None,
             state: str=None, details:str=None, act_type:Activity=Activity.Playing, status_type:StatusDisplay=StatusDisplay.Name,
             large_image:str=None, large_text:str=None, large_url:str=None,
             small_image:str=None, small_text:str=None, small_url:str=None,
@@ -100,6 +100,7 @@ class RPC:
                 party_id = str(party_id)
 
             act = {
+                "name": name,
                 "state": state,
                 "details": details,
                 "type": act_type.value,
