@@ -11,6 +11,7 @@ from .exceptions import (
 )
 from .types import Activity, StatusDisplay, User, Application
 from .utils import remove_none, get_app_info
+from functools import cached_property
 import logging
 import time
 
@@ -37,8 +38,9 @@ class RPC:
         self.exit_on_disconnect = exit_on_disconnect
 
         self.try_reconnecting = True
-        self.User = User()
-        self.App = None
+
+        self._user_data = None
+        self._app_info = None
 
         if debug:
             log.setLevel(logging.DEBUG)
@@ -56,14 +58,17 @@ class RPC:
             self.ipc = UnixPipe(self.app_id, self.exit_if_discord_close, self.exit_on_disconnect)
             
         if not self.ipc.connected: return
-        user_data = self.ipc.handshake()
-        self.User = User(user_data)
-    
-    def get_app_info(self):
-        if not self.App:
-            app_info = get_app_info(self.app_id)
-            self.App = Application(app_info)
-        return self.App
+        self._user_data = self.ipc.handshake()
+
+    @cached_property
+    def User(self):
+        return User(self._user_data)
+
+    @cached_property
+    def App(self):
+        if not self._app_info:
+            self._app_info = get_app_info(self.app_id)
+        return Application(self._app_info)
 
     def set_activity(
             self, name: str=None,
