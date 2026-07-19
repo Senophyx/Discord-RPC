@@ -1,4 +1,6 @@
 import time
+import json
+import urllib.request
 from datetime import datetime
 import logging
 from .exceptions import ProgressbarError
@@ -47,8 +49,6 @@ def progress_bar(current:int, duration:int) -> dict:
     }
 
 def get_app_info(app_id):
-    import urllib.request
-    import json
     try:
         req = urllib.request.Request(f"https://discord.com/api/v10/applications/{app_id}/rpc")
         req.add_header('User-Agent', 'Discord-RPC/1.0')
