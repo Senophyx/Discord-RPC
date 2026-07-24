@@ -60,6 +60,9 @@ class RPC:
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
 
+    @property
+    def connected(self): return self.ipc.connected
+
     @cached_property
     def User(self):
         return User(self._user_data)
