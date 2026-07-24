@@ -78,8 +78,10 @@ Parameters:
 Variables:
 - **is_running** *(bool)* — Whether the RPC successfully set an activity.
 - **try_reconnecting** *(bool, default: `True`)* — Whether to attempt reconnecting on disconnect.
+- **connected** *(bool, property)* — Whether the IPC connection to Discord is alive. Read-only alias for `self.ipc.connected`.
 - **User** *(cached_property)* — Returns a `User` object populated after handshake (see [User](#user)).
 - **App** *(cached_property)* — Returns an `Application` object fetched from Discord API (see [App](#app)).
+- **assets** *(cached_property)* — Returns an `AssetManager` containing all uploaded Rich Presence assets (see [AssetManager](#assetmanager)).
 
 #### `RPC.set_activity`
 
@@ -258,6 +260,12 @@ def get_app_info(app_id: int) -> dict
 ```
 Fetch application info from Discord API without initializing `RPC`.
 
+### `utils.get_assets`
+```python
+def get_assets(app_id: int) -> list
+```
+Fetch all uploaded Rich Presence assets from Discord API without initializing `RPC`. Returns a list of asset dicts with `id`, `name`, and `type` keys.
+
 ---
 
 ## Activity Types
@@ -327,6 +335,56 @@ A: No. This is client-side IPC, Discord must run on the same machine.
 
 **Q: Can I use Streaming or Custom activity?**  
 A: No, those types are disabled and raise `ActivityTypeDisabled`.
+
+---
+
+## AssetManager
+
+```python
+rpc.assets  # cached_property, lazy-loaded from Discord API
+```
+
+An `AssetManager` (subclass of `list`) containing all uploaded Rich Presence art assets. Fetched once on first access using `utils.get_assets()`.
+
+### Methods
+
+- **`assets.get(name: str) -> Asset | None`** — Returns an `Asset` object by its asset key name, or `None` if not found.
+- **`assets.names`** *(property)* — Returns a list of all asset names.
+
+### Asset Object
+
+Each `Asset` in the manager has these attributes:
+- **id** *(int)* — Asset ID.
+- **name** *(str)* — Asset key name (used as `large_image` / `small_image` value).
+- **type** *(int)* — Asset type from Discord.
+- **url** *(str)* — Full CDN URL to the asset image (PNG, 1024px).
+
+### Example
+
+Discovery and usage:
+
+```py
+import discordrpc
+
+rpc = discordrpc.RPC(app_id=123456789)
+
+# List all available asset names
+print(rpc.assets.names)
+
+# Loop through all assets with their CDN URLs
+for asset in rpc.assets:
+  print(f"{asset.name}: {asset.url}")
+
+# Set activity using an asset by name
+rpc.set_activity(
+  state="Assets example",
+  large_image=rpc.assets.get("cat")
+)
+
+rpc.run()
+```
+
+> **Note:** For basic usage, you can still pass asset key strings directly (e.g. `large_image="cat"`) without using the AssetManager. The manager is useful when you need to discover assets dynamically or access their CDN URLs.
 
 ---
 
