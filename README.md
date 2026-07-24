@@ -52,6 +52,7 @@ Big thanks for contributors who help this project keep updated, and maintained.
 - [PyPI Project page](https://pypi.org/project/discord-rpc/)
 - [TestPyPI Project page](https://test.pypi.org/project/discord-rpc/)
 - [Discord Server](https://discord.gg/qpT2AeYZRN)
+- [Initial commit](https://github.com/Senophyx/Discord-RPC/commit/da720b6f95c541a412bb382620071f26c9e97471)
 
 ## Licence & Copyright
 
