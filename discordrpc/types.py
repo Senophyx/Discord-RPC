@@ -52,3 +52,30 @@ class Application():
 
     def __str__(self):
         return f"Application({self.name})"
+
+class Asset():
+    def __init__(self, app_id:int, data:dict=None, size:int=1024):
+        data = data or {}
+        self.app_id: int = app_id
+        self.id: int = int(data.get("id", 0))
+        self.name: str = data.get("name")
+        self.type: int = int(data.get("type", 0))
+        self.url: str = f"https://cdn.discordapp.com/app-assets/{self.app_id}/{self.id}.png?size={size}"
+
+    def __str__(self):
+        return f"Asset({self.name})"
+    def __repr__(self):
+        return str(self)
+
+class AssetManager(list):
+    def __init__(self, app_id:int, assets_list:list=None):
+        super().__init__(
+            Asset(app_id, asset)
+            for asset in assets_list
+        )
+    def get(self, name: str) -> Asset:
+        return next((asset for asset in self if asset.name == name), None)
+
+    @property
+    def names(self) -> list:
+        return list(map(lambda asset: asset.name, self))

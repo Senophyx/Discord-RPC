@@ -48,7 +48,7 @@ def progress_bar(current:int, duration:int) -> dict:
         "ts_start": current_time, "ts_end": finish_time
     }
 
-def get_app_info(app_id):
+def get_app_info(app_id:int) -> dict:
     try:
         req = urllib.request.Request(f"https://discord.com/api/v10/applications/{app_id}/rpc")
         req.add_header('User-Agent', 'Discord-RPC/1.0')
@@ -58,3 +58,14 @@ def get_app_info(app_id):
     except Exception as e:
         log.error(f"Failed to fetch application info: {e}")
     return {}
+
+def get_assets(app_id:int) -> list:
+    try:
+        req = urllib.request.Request(f"https://discord.com/api/v10/oauth2/applications/{app_id}/assets")
+        req.add_header('User-Agent', 'Discord-RPC/1.0')
+        with urllib.request.urlopen(req) as response:
+            if response.status == 200:
+                return json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        log.error(f"Failed to fetch application assets: {e}")
+    return []

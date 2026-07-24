@@ -9,8 +9,8 @@ from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
     ButtonError, InvalidActivityType, ActivityTypeDisabled,
 )
-from .types import Activity, StatusDisplay, User, Application
-from .utils import remove_none, get_app_info
+from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager
+from .utils import remove_none, get_app_info, get_assets
 from functools import cached_property
 import logging
 import time
@@ -70,6 +70,10 @@ class RPC:
             self._app_info = get_app_info(self.app_id)
         return Application(self._app_info)
 
+    @cached_property
+    def assets(self):
+        return AssetManager(self.app_id, get_assets(self.app_id))
+
     def set_activity(
             self, name: str = None,
             state: str = None, details: str = None, act_type: Activity = Activity.Playing, status_type: StatusDisplay = StatusDisplay.Name,
@@ -98,6 +102,9 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
+
+        large_image = large_image.name if isinstance(large_image, Asset) else large_image
+        small_image = small_image.name if isinstance(small_image, Asset) else small_image
 
         activity = None
         if not clear:
