@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- `AssetManager` with `RPC.assets` property and `.get()` / `.names` for fetching Discord application assets (PR [#60](https://github.com/Senophyx/Discord-RPC/pull/60) by @SuperZombi)
+- `Asset` object support in `set_activity()` — pass `rpc.assets.get("key")` directly as `large_image` / `small_image`
+- `utils.get_assets(app_id)` function to fetch assets without initializing `RPC`
+- `RPC.connected` read-only property as alias for `self.ipc.connected` (PR [#63](https://github.com/Senophyx/Discord-RPC/pull/63) by @SuperZombi)
+
+### Changed
+- Bumped GitHub Actions versions: `checkout@v4→v6`, `setup-python@v4→v6` (PR [#62](https://github.com/Senophyx/Discord-RPC/pull/62) by @SuperZombi)
+- Link badges in `README.md` now point to local `CHANGELOG.md` and `DOCS.md` instead of `senophyx.id`
+- `DOCS.md` documentation URL in `pyproject.toml` updated to point to GitHub
+
+### Fixed
+- Indentation in `examples/assets.py` corrected to 4 spaces
+- `User.__str__`, `Application.__str__`, `Asset.__str__`, and `Asset.__repr__` reformatted to multi-line for codebase consistency
+
 ## [6.0] - 2026-07-21
 
 ### Added
