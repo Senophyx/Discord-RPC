@@ -11,7 +11,7 @@ from .exceptions import (
     InvalidEvent, InvalidEventType,
 )
 from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager, OP, Event
-from .utils import remove_none, get_app_info, get_assets
+from .utils import remove_none, get_app_info, get_assets, valid_url
 from functools import cached_property
 import logging
 import time
@@ -128,8 +128,8 @@ class RPC:
                 "details": details,
                 "type": act_type.value,
                 "status_display_type": status_type.value,
-                "state_url": state_url,
-                "details_url": details_url,
+                "state_url": valid_url(state_url),
+                "details_url": valid_url(details_url),
                 "timestamps": {
                     "start": ts_start,
                     "end": ts_end
@@ -137,10 +137,10 @@ class RPC:
                 "assets": {
                     "large_image": large_image,
                     "large_text": large_text,
-                    "large_url": large_url,
+                    "large_url": valid_url(large_url),
                     "small_image": small_image,
                     "small_text": small_text,
-                    "small_url": small_url
+                    "small_url": valid_url(small_url)
                 },
                 "party": {
                     "id": party_id,
