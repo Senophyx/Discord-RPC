@@ -164,12 +164,22 @@ class RPC:
 
         try:
             self.ipc._send(payload, OP_FRAME)
+            response = self.ipc._recv()
+            if response.get("evt") == "ERROR":
+                error_msg = response.get("data", {}).get("message")
+                self.is_running = False
+                log.error('Failed to set RPC')
+                log.error(error_msg)
+                return False
+
             self.is_running = True
             log.info('RPC set')
             return True
         except Exception as e:
             log.error('Failed to set RPC')
+            log.error(e)
             self.disconnect()
+            return False
 
 
     def clear(self):
