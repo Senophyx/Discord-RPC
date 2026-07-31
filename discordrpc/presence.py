@@ -66,9 +66,8 @@ class RPC:
             
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
-        self._start_reader()
 
-    def _start_reader(self):
+    def _start_event_listener(self):
         if self._reader_thread and self._reader_thread.is_alive():
             return
         self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
@@ -210,6 +209,10 @@ class RPC:
 
         if not self.ipc.connected:
             return
+
+        if event in self._event_callbacks.keys():
+            log.debug(f"Event {event} already registered")
+            return
  
         payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
         res = self.ipc._request(payload)
@@ -218,7 +221,9 @@ class RPC:
             log.error(res.get("error"))
             return False
 
+        self._event_callbacks.setdefault(event, [])
         log.info(f"Subscribed to {event}")
+        self._start_event_listener()
         return True
 
     def unsubscribe(self, event: str):
@@ -226,6 +231,10 @@ class RPC:
             raise InvalidEvent(event)
 
         if not self.ipc.connected:
+            return
+
+        if not event in self._event_callbacks.keys():
+            log.error(f"Event {event} not registered")
             return
  
         payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
@@ -235,6 +244,7 @@ class RPC:
             log.error(res.get("error"))
             return False
 
+        self._event_callbacks.pop(event, [])
         log.info(f"Unsubscribed from {event}")
         return True
 
@@ -243,13 +253,14 @@ class RPC:
             raise InvalidEventType(type(event))
  
         def decorator(callback):
-            self._event_callbacks.setdefault(event.value, []).append(callback)
             self.subscribe(event.value)
+            self._event_callbacks.setdefault(event.value, []).append(callback)
             return callback
  
         return decorator
 
     def _reader_loop(self):
+        log.debug("Starting events listener")
         while self.ipc.connected:
             try:
                 frame = self.ipc.read_with_timeout()
