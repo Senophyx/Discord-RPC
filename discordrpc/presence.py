@@ -15,11 +15,17 @@ from functools import cached_property
 import logging
 import time
 
+import msvcrt
+import win32pipe
+import threading
+
 OP_HANDSHAKE = 0
 OP_FRAME = 1
 OP_CLOSE = 2
 OP_PING = 3
 OP_PONG = 4
+
+SUBSCRIBABLE_EVENTS = ["ACTIVITY_JOIN", "ACTIVITY_SPECTATE", "ACTIVITY_JOIN_REQUEST"]
 
 ### Logger ###
 log = logging.getLogger("Discord RPC")
@@ -49,6 +55,8 @@ class RPC:
             log.disabled = True
 
         self.is_running = False
+        self._reader_thread = None
+        self._event_callbacks = {}
         self._setup()
 
     def _setup(self):
@@ -59,6 +67,13 @@ class RPC:
             
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
+        self._start_reader()
+
+    def _start_reader(self):
+        if self._reader_thread and self._reader_thread.is_alive():
+            return
+        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
+        self._reader_thread.start()
 
     @property
     def connected(self): return self.ipc.connected
@@ -189,6 +204,56 @@ class RPC:
 
         self.ipc.disconnect()
         self.is_running = False
+
+    def subscribe(self, event: str):
+        if event not in SUBSCRIBABLE_EVENTS:
+            raise RPCException(
+                f"'{event}' is not a subscribable event."
+            )
+
+        if not self.ipc.connected:
+            return
+ 
+        payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self._request(payload)
+        if not res.get("ok"):
+            log.error(f'Failed to subscribe to {event}')
+            log.error(res.get("error"))
+            return False
+
+        log.info(f"Subscribed to {event}")
+        return True
+
+    def on(self, event: str):
+        if event not in SUBSCRIBABLE_EVENTS:
+            raise RPCException(
+                f"'{event}' is not a subscribable event."
+            )
+ 
+        def decorator(callback):
+            self._event_callbacks.setdefault(event, []).append(callback)
+            self.subscribe(event)
+            return callback
+ 
+        return decorator
+
+    def _reader_loop(self):
+        while self.ipc.connected:
+            try:
+                frame = self.ipc.read_with_timeout()
+            except Exception as e:
+                log.debug(f"IPC reader stopping: {e}")
+                break
+ 
+            if not frame:
+                continue
+
+            if frame.get('cmd') == 'DISPATCH':
+                self._dispatch(frame.get('evt'), frame.get('data', {}) or {})
+
+    def _dispatch(self, evt: str, data: dict):
+        for callback in self._event_callbacks.get(evt, []):
+            callback(data)
 
     def _request(self, payload: dict, op=OP_FRAME) -> dict:
         self.ipc._send(payload, op)
@@ -332,6 +397,26 @@ class WindowsPipe(_BasePipe):
 
         log.debug(output)
         return output
+
+    def read_with_timeout(self, timeout=1):
+        handle = msvcrt.get_osfhandle(self.socket.fileno())
+        header_size = 8
+
+        end = time.time() + timeout
+
+        while time.time() < end:
+            _, available, _ = win32pipe.PeekNamedPipe(handle, 0)
+
+            if available >= header_size:
+                frame = self.socket.read(header_size)
+                if frame:
+                    dec_header = struct.unpack("<ii", frame)
+                    remain_packet_size = int(dec_header[1])
+                    enc_data = self.socket.read(remain_packet_size)
+                    output = json.loads(enc_data.decode('UTF-8'))
+                    return output
+
+            time.sleep(0.01)
 
 
 class UnixPipe(_BasePipe):
