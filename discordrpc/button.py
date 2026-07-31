@@ -1,7 +1,6 @@
 from .exceptions import InvalidURL
+from .utils import valid_url
 
 
 def button(text:str, url:str):
-    if not url.startswith(("http://", "https://")):
-        raise InvalidURL()
-    return {"label": text, "url": url}
+    return {"label": text, "url": valid_url(url)}

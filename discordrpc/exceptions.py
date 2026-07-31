@@ -18,7 +18,7 @@ class ActivityError(RPCException):
 
 class InvalidURL(RPCException):
     def __init__(self):
-        super().__init__("Invalid URL. Must include: http:// or https://")
+        super().__init__("URL must start with http:// or https://")
 
 class InvalidID(RPCException):
     def __init__(self):

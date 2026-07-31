@@ -3,7 +3,7 @@ import json
 import urllib.request
 from datetime import datetime
 import logging
-from .exceptions import ProgressbarError
+from .exceptions import ProgressbarError, InvalidURL
 
 log = logging.getLogger("Discord RPC")
 
@@ -29,6 +29,11 @@ def date_to_timestamp(date:str):
     return int(time.mktime(
         datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
     ))
+
+def valid_url(url:str) -> str:
+    if url and not url.startswith(("http://", "https://")):
+        raise InvalidURL()
+    return url
 
 def use_local_time():
     now = datetime.now()
