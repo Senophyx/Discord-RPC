@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-# https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types
+# https://docs.discord.com/developers/events/gateway-events#activity-object-activity-types
 class Activity(Enum):
     Playing = 0
     Streaming = 1
@@ -10,11 +10,13 @@ class Activity(Enum):
     Custom = 4
     Competing = 5
 
+# https://docs.discord.com/developers/events/gateway-events#activity-object-status-display-types
 class StatusDisplay(Enum):
     Name = 0
     State = 1
     Details = 2
 
+# https://docs.discord.com/developers/topics/rpc
 class OP(Enum):
     HANDSHAKE = 0
     FRAME = 1
@@ -22,12 +24,14 @@ class OP(Enum):
     PING = 3
     PONG = 4
 
+# https://docs.discord.com/developers/topics/rpc#commands-and-events-rpc-events
 class Event(Enum):
-    JOIN = "ACTIVITY_JOIN"
-    JOIN_REQUEST = "ACTIVITY_JOIN_REQUEST"
-    SPECTATE = "ACTIVITY_SPECTATE"
-    INVITE = "ACTIVITY_INVITE"
+    JOIN = "ACTIVITY_JOIN"                 # https://docs.discord.com/developers/topics/rpc#activity_join
+    JOIN_REQUEST = "ACTIVITY_JOIN_REQUEST" # https://docs.discord.com/developers/topics/rpc#activity_join_request
+    SPECTATE = "ACTIVITY_SPECTATE"         # https://docs.discord.com/developers/topics/rpc#activity_spectate
+    INVITE = "ACTIVITY_INVITE"             # https://docs.discord.com/developers/topics/rpc#activity_invite
 
+# https://docs.discord.com/developers/topics/rpc#current_user_update
 class User():
     def __init__(self, data:dict=None):
         data = data or {}
