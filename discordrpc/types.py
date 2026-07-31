@@ -15,6 +15,19 @@ class StatusDisplay(Enum):
     State = 1
     Details = 2
 
+class OP(Enum):
+    HANDSHAKE = 0
+    FRAME = 1
+    CLOSE = 2
+    PING = 3
+    PONG = 4
+
+class Event(Enum):
+    JOIN = "ACTIVITY_JOIN"
+    JOIN_REQUEST = "ACTIVITY_JOIN_REQUEST"
+    SPECTATE = "ACTIVITY_SPECTATE"
+    INVITE = "ACTIVITY_INVITE"
+
 class User():
     def __init__(self, data:dict=None):
         data = data or {}

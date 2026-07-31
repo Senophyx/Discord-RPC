@@ -8,8 +8,9 @@ from typing import Optional
 from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
     ButtonError, InvalidActivityType, ActivityTypeDisabled,
+    InvalidEvent, InvalidEventType,
 )
-from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager
+from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager, OP, Event
 from .utils import remove_none, get_app_info, get_assets
 from functools import cached_property
 import logging
@@ -18,14 +19,6 @@ import time
 import msvcrt
 import win32pipe
 import threading
-
-OP_HANDSHAKE = 0
-OP_FRAME = 1
-OP_CLOSE = 2
-OP_PING = 3
-OP_PONG = 4
-
-SUBSCRIBABLE_EVENTS = ["ACTIVITY_JOIN", "ACTIVITY_SPECTATE", "ACTIVITY_JOIN_REQUEST"]
 
 ### Logger ###
 log = logging.getLogger("Discord RPC")
@@ -178,7 +171,7 @@ class RPC:
             return
 
         try:
-            res = self._request(payload)
+            res = self.ipc._request(payload)
             if not res.get("ok"):
                 self.is_running = False
                 log.error('Failed to set RPC')
@@ -206,16 +199,14 @@ class RPC:
         self.is_running = False
 
     def subscribe(self, event: str):
-        if event not in SUBSCRIBABLE_EVENTS:
-            raise RPCException(
-                f"'{event}' is not a subscribable event."
-            )
+        if event not in [event.value for event in Event]:
+            raise InvalidEvent(event)
 
         if not self.ipc.connected:
             return
  
         payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
-        res = self._request(payload)
+        res = self.ipc._request(payload)
         if not res.get("ok"):
             log.error(f'Failed to subscribe to {event}')
             log.error(res.get("error"))
@@ -224,15 +215,13 @@ class RPC:
         log.info(f"Subscribed to {event}")
         return True
 
-    def on(self, event: str):
-        if event not in SUBSCRIBABLE_EVENTS:
-            raise RPCException(
-                f"'{event}' is not a subscribable event."
-            )
+    def on(self, event: Event):
+        if type(event) != Event:
+            raise InvalidEventType(type(event))
  
         def decorator(callback):
-            self._event_callbacks.setdefault(event, []).append(callback)
-            self.subscribe(event)
+            self._event_callbacks.setdefault(event.value, []).append(callback)
+            self.subscribe(event.value)
             return callback
  
         return decorator
@@ -253,14 +242,10 @@ class RPC:
 
     def _dispatch(self, evt: str, data: dict):
         for callback in self._event_callbacks.get(evt, []):
-            callback(data)
-
-    def _request(self, payload: dict, op=OP_FRAME) -> dict:
-        self.ipc._send(payload, op)
-        res = self.ipc._recv()
-        if res.get("evt") == "ERROR":
-            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
-        return {"ok": True, **res}
+            try:
+                callback(data)
+            except Exception as e:
+                log.error(f"Error in '{evt}' event callback: {e}")
 
     def run(self, update_every:int=1, ping_every:int=15):
         try:
@@ -272,10 +257,10 @@ class RPC:
                 if self.ipc.connected and (time.time() - last_ping >= ping_every):
                     payload = {"v": 1, "client_id": self.app_id}
                     try:
-                        self.ipc._send(payload, OP_PING)
+                        self.ipc._send(payload, OP.PING)
                         last_ping = time.time()
                     except Exception as e:
-                        log.debug(f"Heartbeat PING failed: {e}")
+                        log.error(f"Heartbeat PING failed: {e}")
                         self.disconnect()
         except KeyboardInterrupt:
             self.disconnect()
@@ -292,13 +277,20 @@ class _BasePipe:
         """Override in subclass to establish the pipe connection. Returns True on success."""
         raise NotImplementedError
 
-    def _send(self, payload, op=OP_FRAME):
+    def _send(self, payload, op=OP.FRAME):
         log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
-        payload = struct.pack('<ii', op, len(payload)) + payload
+        payload = struct.pack('<ii', op.value, len(payload)) + payload
 
         self._write(payload)
+
+    def _request(self, payload: dict, op=OP.FRAME) -> dict:
+        self._send(payload, op)
+        res = self._recv()
+        if res.get("evt") == "ERROR":
+            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
+        return {"ok": True, **res}
 
     def _write(self, data: bytes):
         """Override in subclass to write bytes to the pipe."""
@@ -309,8 +301,7 @@ class _BasePipe:
         raise NotImplementedError
 
     def handshake(self):
-        self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
-        data = self._recv()
+        data = self._request({'v': 1, 'client_id': self.app_id}, op=OP.HANDSHAKE)
 
         if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
             user = data.get('data', {}).get('user')
@@ -325,7 +316,7 @@ class _BasePipe:
 
     def disconnect(self):
         try:
-            self._send({}, OP_CLOSE)
+            self._send({}, OP.CLOSE)
             self._close()
         except Exception as e:
             log.debug("Socket closed before command was received")
@@ -339,6 +330,9 @@ class _BasePipe:
 
     def _close(self):
         """Override in subclass to close the socket."""
+        raise NotImplementedError
+
+    def read_with_timeout(self, timeout=1):
         raise NotImplementedError
 
 
