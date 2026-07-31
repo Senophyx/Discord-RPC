@@ -163,15 +163,13 @@ class RPC:
             return
 
         try:
-            self.ipc._send(payload, OP_FRAME)
-            response = self.ipc._recv()
-            if response.get("evt") == "ERROR":
-                error_msg = response.get("data", {}).get("message")
+            res = self._request(payload)
+            if not res.get("ok"):
                 self.is_running = False
                 log.error('Failed to set RPC')
-                log.error(error_msg)
+                log.error(res.get("error"))
                 return False
-
+            
             self.is_running = True
             log.info('RPC set')
             return True
@@ -191,6 +189,13 @@ class RPC:
 
         self.ipc.disconnect()
         self.is_running = False
+
+    def _request(self, payload: dict, op=OP_FRAME) -> dict:
+        self.ipc._send(payload, op)
+        res = self.ipc._recv()
+        if res.get("evt") == "ERROR":
+            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
+        return {"ok": True, **res}
 
     def run(self, update_every:int=1, ping_every:int=15):
         try:
