@@ -215,6 +215,23 @@ class RPC:
         log.info(f"Subscribed to {event}")
         return True
 
+    def unsubscribe(self, event: str):
+        if event not in [event.value for event in Event]:
+            raise InvalidEvent(event)
+
+        if not self.ipc.connected:
+            return
+ 
+        payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self.ipc._request(payload)
+        if not res.get("ok"):
+            log.error(f'Failed to unsubscribe from {event}')
+            log.error(res.get("error"))
+            return False
+
+        log.info(f"Unsubscribed from {event}")
+        return True
+
     def on(self, event: Event):
         if type(event) != Event:
             raise InvalidEventType(type(event))
