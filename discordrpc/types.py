@@ -51,13 +51,19 @@ class Application():
         self.name: str = data.get("name")
         self.description: str = data.get("description")
         self.icon: str = self._parse_icon(data.get("icon"))
+        self.cover: str = self._parse_cover(data.get("cover_image"))
         self.verified: bool = data.get("is_verified", False)
         self.public: bool = data.get("bot_public", False)
 
-    def _parse_icon(self, icon_id:str, size:int=512) -> str:
+    def _parse_icon(self, icon_id:str, size:int=1024) -> str:
         if icon_id:
             return f"https://cdn.discordapp.com/app-icons/{self.id}/{icon_id}.png?size={size}"
         return "https://cdn.discordapp.com/embed/avatars/1.png"
+
+    def _parse_cover(self, icon_id:str, size:int=1024) -> str:
+        if icon_id:
+            return f"https://cdn.discordapp.com/app-icons/{self.id}/{icon_id}.png?size={size}&keep_aspect_ratio=true"
+        return ""
 
     def __str__(self):
         return f"Application({self.name})"
