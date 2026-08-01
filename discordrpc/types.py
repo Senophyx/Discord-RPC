@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-# https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types
+# https://docs.discord.com/developers/events/gateway-events#activity-object-activity-types
 class Activity(Enum):
     Playing = 0
     Streaming = 1
@@ -10,11 +10,13 @@ class Activity(Enum):
     Custom = 4
     Competing = 5
 
+# https://docs.discord.com/developers/events/gateway-events#activity-object-status-display-types
 class StatusDisplay(Enum):
     Name = 0
     State = 1
     Details = 2
 
+# https://docs.discord.com/developers/topics/rpc#current_user_update
 class User():
     def __init__(self, data:dict=None):
         data = data or {}

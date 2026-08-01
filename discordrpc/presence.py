@@ -10,7 +10,7 @@ from .exceptions import (
     ButtonError, InvalidActivityType, ActivityTypeDisabled,
 )
 from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager
-from .utils import remove_none, get_app_info, get_assets
+from .utils import remove_none, get_app_info, get_assets, valid_url
 from functools import cached_property
 import logging
 import time
@@ -120,8 +120,8 @@ class RPC:
                 "details": details,
                 "type": act_type.value,
                 "status_display_type": status_type.value,
-                "state_url": state_url,
-                "details_url": details_url,
+                "state_url": valid_url(state_url),
+                "details_url": valid_url(details_url),
                 "timestamps": {
                     "start": ts_start,
                     "end": ts_end
@@ -129,10 +129,10 @@ class RPC:
                 "assets": {
                     "large_image": large_image,
                     "large_text": large_text,
-                    "large_url": large_url,
+                    "large_url": valid_url(large_url),
                     "small_image": small_image,
                     "small_text": small_text,
-                    "small_url": small_url
+                    "small_url": valid_url(small_url)
                 },
                 "party": {
                     "id": party_id,
@@ -163,13 +163,21 @@ class RPC:
             return
 
         try:
-            self.ipc._send(payload, OP_FRAME)
+            res = self.ipc._request(payload)
+            if not res.get("ok"):
+                self.is_running = False
+                log.error('Failed to set RPC')
+                log.error(res.get("error"))
+                return False
+            
             self.is_running = True
             log.info('RPC set')
             return True
         except Exception as e:
             log.error('Failed to set RPC')
+            log.error(e)
             self.disconnect()
+            return False
 
 
     def clear(self):
@@ -195,7 +203,7 @@ class RPC:
                         self.ipc._send(payload, OP_PING)
                         last_ping = time.time()
                     except Exception as e:
-                        log.debug(f"Heartbeat PING failed: {e}")
+                        log.error(f"Heartbeat PING failed: {e}")
                         self.disconnect()
         except KeyboardInterrupt:
             self.disconnect()
@@ -212,13 +220,20 @@ class _BasePipe:
         """Override in subclass to establish the pipe connection. Returns True on success."""
         raise NotImplementedError
 
-    def _send(self, payload, op=OP_FRAME):
+    def _send(self, payload, op=OP_FRAME: int):
         log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
 
         self._write(payload)
+
+    def _request(self, payload: dict, op=OP_FRAME: int) -> dict:
+        self._send(payload, op)
+        res = self._recv()
+        if res.get("evt") == "ERROR":
+            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
+        return {"ok": True, **res}
 
     def _write(self, data: bytes):
         """Override in subclass to write bytes to the pipe."""
@@ -229,8 +244,7 @@ class _BasePipe:
         raise NotImplementedError
 
     def handshake(self):
-        self._send({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
-        data = self._recv()
+        data = self._request({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
 
         if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
             user = data.get('data', {}).get('user')
