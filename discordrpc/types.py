@@ -33,13 +33,18 @@ class User():
         self.avatar: str = self._parse_avatar(data)
         self.bot: bool = data.get('bot', False)
         self.premium_type: int = int(data.get('premium_type', 0))
+        self.avatar_decoration: str = self._parse_decoration((data.get("avatar_decoration_data") or {}))
 
     def _parse_avatar(self, data:dict, size:int=1024) -> str:
         if data.get('avatar'):
             ext = "gif" if data.get('avatar').startswith("a_") else "png"
             return f"https://cdn.discordapp.com/avatars/{self.id}/{data.get('avatar')}.{ext}?size={size}"
-        else:
-            return f"https://cdn.discordapp.com/embed/avatars/0.png"
+        return f"https://cdn.discordapp.com/embed/avatars/0.png"
+
+    def _parse_decoration(self, data:dict, size:int=1024) -> str:
+        if data.get("asset"):
+            return f"https://cdn.discordapp.com/avatar-decoration-presets/{data.get('asset')}.png?size={size}"
+        return ""
 
     def __str__(self):
         return f"User({self.name})"
