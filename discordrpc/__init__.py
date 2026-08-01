@@ -6,7 +6,7 @@ from .exceptions import (
     InvalidURL, InvalidID, ButtonError, ProgressbarError,
     InvalidActivityType, ActivityTypeDisabled,
 )
-from .types import Activity, StatusDisplay, User, Application
+from .types import Activity, StatusDisplay, User, Application, Event
 from .utils import remove_none, timestamp, date_to_timestamp, use_local_time, progress_bar, get_app_info
 
 __title__ = "Discord RPC"

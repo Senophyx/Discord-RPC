@@ -16,6 +16,13 @@ class StatusDisplay(Enum):
     State = 1
     Details = 2
 
+# https://docs.discord.com/developers/topics/rpc#commands-and-events-rpc-events
+class Event(Enum):
+    JOIN = "ACTIVITY_JOIN"                 # https://docs.discord.com/developers/topics/rpc#activity_join
+    JOIN_REQUEST = "ACTIVITY_JOIN_REQUEST" # https://docs.discord.com/developers/topics/rpc#activity_join_request
+    SPECTATE = "ACTIVITY_SPECTATE"         # https://docs.discord.com/developers/topics/rpc#activity_spectate
+    INVITE = "ACTIVITY_INVITE"             # https://docs.discord.com/developers/topics/rpc#activity_invite
+
 # https://docs.discord.com/developers/topics/rpc#current_user_update
 class User():
     def __init__(self, data:dict=None):

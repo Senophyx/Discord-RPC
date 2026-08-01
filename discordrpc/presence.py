@@ -8,12 +8,17 @@ from typing import Optional
 from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
     ButtonError, InvalidActivityType, ActivityTypeDisabled,
+    InvalidEvent, InvalidEventType,
 )
-from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager
+from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager, Event
 from .utils import remove_none, get_app_info, get_assets, valid_url
 from functools import cached_property
 import logging
 import time
+
+import msvcrt
+import win32pipe
+import threading
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
@@ -49,6 +54,8 @@ class RPC:
             log.disabled = True
 
         self.is_running = False
+        self._reader_thread = None
+        self._event_callbacks = {}
         self._setup()
 
     def _setup(self):
@@ -59,6 +66,12 @@ class RPC:
             
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
+
+    def _start_event_listener(self):
+        if self._reader_thread and self._reader_thread.is_alive():
+            return
+        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
+        self._reader_thread.start()
 
     @property
     def connected(self): return self.ipc.connected
@@ -190,6 +203,84 @@ class RPC:
         self.ipc.disconnect()
         self.is_running = False
 
+    def subscribe(self, event: str):
+        if event not in [event.value for event in Event]:
+            raise InvalidEvent(event)
+
+        if not self.ipc.connected:
+            return
+
+        if event in self._event_callbacks.keys():
+            log.debug(f"Event {event} already registered")
+            return
+ 
+        payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self.ipc._request(payload)
+        if not res.get("ok"):
+            log.error(f'Failed to subscribe to {event}')
+            log.error(res.get("error"))
+            return False
+
+        self._event_callbacks.setdefault(event, [])
+        log.info(f"Subscribed to {event}")
+        self._start_event_listener()
+        return True
+
+    def unsubscribe(self, event: str):
+        if event not in [event.value for event in Event]:
+            raise InvalidEvent(event)
+
+        if not self.ipc.connected:
+            return
+
+        if not event in self._event_callbacks.keys():
+            log.error(f"Event {event} not registered")
+            return
+ 
+        payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self.ipc._request(payload)
+        if not res.get("ok"):
+            log.error(f'Failed to unsubscribe from {event}')
+            log.error(res.get("error"))
+            return False
+
+        self._event_callbacks.pop(event, [])
+        log.info(f"Unsubscribed from {event}")
+        return True
+
+    def on(self, event: Event):
+        if type(event) != Event:
+            raise InvalidEventType(type(event))
+ 
+        def decorator(callback):
+            self.subscribe(event.value)
+            self._event_callbacks.setdefault(event.value, []).append(callback)
+            return callback
+ 
+        return decorator
+
+    def _reader_loop(self):
+        log.debug("Starting events listener")
+        while self.ipc.connected:
+            try:
+                frame = self.ipc.read_with_timeout()
+            except Exception as e:
+                log.debug(f"IPC reader stopping: {e}")
+                break
+ 
+            if not frame:
+                continue
+
+            if frame.get('cmd') == 'DISPATCH':
+                self._dispatch(frame.get('evt'), frame.get('data', {}) or {})
+
+    def _dispatch(self, evt: str, data: dict):
+        for callback in self._event_callbacks.get(evt, []):
+            try:
+                callback(data)
+            except Exception as e:
+                log.error(f"Error in '{evt}' event callback: {e}")
+
     def run(self, update_every:int=1, ping_every:int=15):
         try:
             last_ping = time.time()
@@ -275,6 +366,9 @@ class _BasePipe:
         """Override in subclass to close the socket."""
         raise NotImplementedError
 
+    def read_with_timeout(self, timeout=1):
+        raise NotImplementedError
+
 
 class WindowsPipe(_BasePipe):
     def _connect_pipe(self):
@@ -331,6 +425,26 @@ class WindowsPipe(_BasePipe):
 
         log.debug(output)
         return output
+
+    def read_with_timeout(self, timeout=1):
+        handle = msvcrt.get_osfhandle(self.socket.fileno())
+        header_size = 8
+
+        end = time.time() + timeout
+
+        while time.time() < end:
+            _, available, _ = win32pipe.PeekNamedPipe(handle, 0)
+
+            if available >= header_size:
+                frame = self.socket.read(header_size)
+                if frame:
+                    dec_header = struct.unpack("<ii", frame)
+                    remain_packet_size = int(dec_header[1])
+                    enc_data = self.socket.read(remain_packet_size)
+                    output = json.loads(enc_data.decode('UTF-8'))
+                    return output
+
+            time.sleep(0.01)
 
 
 class UnixPipe(_BasePipe):
