@@ -15,10 +15,11 @@ from .utils import remove_none, get_app_info, get_assets, valid_url
 from functools import cached_property
 import logging
 import time
-
-import msvcrt
-import win32pipe
 import threading
+
+if sys.platform == "win32":
+    import msvcrt
+    import win32pipe
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
