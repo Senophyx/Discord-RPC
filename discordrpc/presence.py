@@ -459,13 +459,31 @@ class _BasePipe:
         raise RPCException(f"Handshake failed: {message}")
 
     def handshake(self):
-        data = self._request({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
+        self._send({'v': 1, 'client_id': self.app_id}, OP_HANDSHAKE)
 
-        if not data.get("ok"):
-            self._handle_handshake_error(data)
+        opcode, payload = self._read_frame()
+        if payload is None:
+            raise RPCException("Handshake did not receive a READY event")
 
-        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
-            user = data.get('data', {}).get('user')
+        if opcode == OP_CLOSE:
+            self.connected = False
+            raise RPCException("Handshake closed by Discord before READY")
+
+        if not isinstance(payload, dict):
+            raise RPCException("Handshake did not receive a READY event")
+
+        if payload.get("evt") == "ERROR":
+            data = payload.get("data") or {}
+            error_payload = {
+                "ok": False,
+                "code": data.get("code"),
+                "error": data.get("message") or payload.get("message"),
+                "response": payload,
+            }
+            self._handle_handshake_error(error_payload)
+
+        if payload.get("cmd") == "DISPATCH" and payload.get("evt") == "READY":
+            user = payload.get("data", {}).get("user")
             if user:
                 log.info(f"Connected to {user.get('username')} ({user.get('id')})")
                 return user

@@ -1,7 +1,14 @@
+import json
+import struct
 import unittest
 
 from discordrpc.exceptions import InvalidID, RPCException
-from discordrpc.presence import _BasePipe, OP_FRAME
+from discordrpc.presence import _BasePipe, OP_CLOSE, OP_FRAME, OP_HANDSHAKE
+
+
+def build_frame(opcode, payload):
+    data = json.dumps(payload).encode("UTF-8")
+    return struct.pack("<ii", opcode, len(data)) + data
 
 
 class FakePipe(_BasePipe):
@@ -29,44 +36,54 @@ class FakePipe(_BasePipe):
     def _close(self):
         pass
 
-    def _request(self, payload, op=OP_FRAME, timeout=1.0):
-        if self.responses:
-            import json
-
-            raw = self.responses.pop(0)
-            # FakePipe responses are raw payload dicts; the test builds the frame.
-            return {"ok": True, **raw}
-        return {"ok": False, "error": "RPC request timed out", "response": None}
-
 
 class HandshakeTests(unittest.TestCase):
-    def test_ready_event_succeeds(self):
+    def _pipe_with(self, frames):
         pipe = FakePipe()
-        pipe.responses = [
-            {"cmd": "DISPATCH", "evt": "READY", "data": {"user": {"id": "1", "username": "seno"}}}
-        ]
+        pipe.responses = [build_frame(*frame) for frame in frames]
+        return pipe
+
+    def test_ready_event_succeeds(self):
+        pipe = self._pipe_with([
+            (OP_FRAME, {"cmd": "DISPATCH", "evt": "READY", "data": {"user": {"id": "1", "username": "seno"}}})
+        ])
         user = pipe.handshake()
         self.assertEqual(user.get("username"), "seno")
+        # Handshake frame must be sent with opcode 0 and no nonce.
+        raw = pipe.sent[0]
+        opcode, length = struct.unpack("<ii", raw[:8])
+        self.assertEqual(opcode, OP_HANDSHAKE)
+        payload = json.loads(raw[8:8 + length])
+        self.assertEqual(payload, {"v": 1, "client_id": None})
+        self.assertNotIn("nonce", payload)
 
     def test_error_with_invalid_client_id_raises_invalid_id(self):
-        pipe = FakePipe()
-        pipe.responses = [
-            {"cmd": "DISPATCH", "evt": "ERROR", "data": {"code": 4000, "message": "Invalid Client ID"}}
-        ]
-        # FakePipe ignores the evt==ERROR path in _request; emulate the base behavior by
-        # injecting the error dict directly.
+        pipe = self._pipe_with([
+            (OP_FRAME, {"cmd": "DISPATCH", "evt": "ERROR", "data": {"code": 4000, "message": "Invalid Client ID"}})
+        ])
         with self.assertRaises(InvalidID):
-            data = {"cmd": "DISPATCH", "evt": "ERROR", "data": {"code": 4000, "message": "Invalid Client ID"}}
-            if data.get("evt") == "ERROR":
-                payload = {"ok": False, "code": 4000, "error": "Invalid Client ID", "response": data}
-                pipe._handle_handshake_error(payload)
+            pipe.handshake()
 
     def test_unknown_error_raises_rpc_exception(self):
-        pipe = FakePipe()
-        data = {"cmd": "DISPATCH", "evt": "ERROR", "data": {"code": 1002, "message": "Something else"}}
-        payload = {"ok": False, "code": 1002, "error": "Something else", "response": data}
+        pipe = self._pipe_with([
+            (OP_FRAME, {"cmd": "DISPATCH", "evt": "ERROR", "data": {"code": 1002, "message": "Something else"}})
+        ])
         with self.assertRaises(RPCException):
-            pipe._handle_handshake_error(payload)
+            pipe.handshake()
+
+    def test_close_before_ready_raises(self):
+        pipe = self._pipe_with([
+            (OP_CLOSE, {})
+        ])
+        with self.assertRaises(RPCException):
+            pipe.handshake()
+
+    def test_missing_ready_raises(self):
+        pipe = self._pipe_with([
+            (OP_FRAME, {"cmd": "DISPATCH", "evt": "SOMETHING_ELSE", "data": {}})
+        ])
+        with self.assertRaises(RPCException):
+            pipe.handshake()
 
 
 if __name__ == "__main__":
