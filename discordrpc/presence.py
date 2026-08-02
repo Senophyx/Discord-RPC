@@ -13,7 +13,7 @@ from .exceptions import (
     InvalidEvent, InvalidEventType,
 )
 from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager, Event
-from .utils import remove_none, get_app_info, get_assets, valid_url
+from .utils import remove_none, get_app_info, get_assets, valid_url, required_url
 from functools import cached_property
 import logging
 import time
@@ -112,6 +112,17 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
+
+        # Validate button URLs so invalid URLs are caught client-side instead of
+        # being silently rejected by Discord (or missing from the presence).
+        if buttons:
+            buttons = [
+                {
+                    "label": item.get("label") if isinstance(item, dict) else None,
+                    "url": required_url(item.get("url") if isinstance(item, dict) else item),
+                }
+                for item in buttons
+            ]
 
         large_image = large_image.name if isinstance(large_image, Asset) else large_image
         small_image = small_image.name if isinstance(small_image, Asset) else small_image
