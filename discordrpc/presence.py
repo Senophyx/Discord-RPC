@@ -425,8 +425,18 @@ class _BasePipe:
             raise ValueError(f"Invalid IPC frame payload: {e}")
         return opcode, payload
 
+    def _handle_handshake_error(self, payload):
+        code = payload.get("code")
+        message = payload.get("error") or "Handshake failed"
+        if code == 4000 or "invalid" in str(message).lower():
+            raise InvalidID()
+        raise RPCException(f"Handshake failed: {message}")
+
     def handshake(self):
         data = self._request({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
+
+        if not data.get("ok"):
+            self._handle_handshake_error(data)
 
         if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
             user = data.get('data', {}).get('user')
@@ -434,10 +444,7 @@ class _BasePipe:
                 log.info(f"Connected to {user.get('username')} ({user.get('id')})")
                 return user
 
-        if data.get('code') == 4000:
-            raise InvalidID()
-
-        raise RPCException()
+        raise RPCException("Handshake did not receive a READY event")
 
     def disconnect(self):
         try:
