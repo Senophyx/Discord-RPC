@@ -173,16 +173,14 @@ class RPC:
             res = self.ipc._request(payload)
             if not res.get("ok"):
                 self.is_running = False
-                log.error('Failed to set RPC')
-                log.error(res.get("error"))
+                log.error("Failed to set RPC: %s", res.get("error"))
                 return False
             
             self.is_running = True
-            log.info('RPC set')
+            log.info("RPC set")
             return True
-        except Exception as e:
-            log.error('Failed to set RPC')
-            log.error(e)
+        except Exception:
+            log.exception("Failed to set RPC")
             self.disconnect()
             return False
 
@@ -224,8 +222,7 @@ class RPC:
             payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
             res = self.ipc._request(payload)
             if not res.get("ok"):
-                log.error(f'Failed to subscribe to {event}')
-                log.error(res.get("error"))
+                log.error("Failed to subscribe to %s: %s", event, res.get("error"))
                 return False
 
             self._subscriptions.add(event)
@@ -247,8 +244,7 @@ class RPC:
             payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
             res = self.ipc._request(payload)
             if not res.get("ok"):
-                log.error(f'Failed to unsubscribe from {event}')
-                log.error(res.get("error"))
+                log.error("Failed to unsubscribe from %s: %s", event, res.get("error"))
                 return False
 
             self._subscriptions.discard(event)
@@ -287,8 +283,8 @@ class RPC:
         for callback in callbacks:
             try:
                 callback(data)
-            except Exception as e:
-                log.error(f"Error in '{evt}' event callback: {e}")
+            except Exception:
+                log.exception("Error in '%s' event callback", evt)
 
     def run(self, update_every:int=1, ping_every:int=15):
         try:
@@ -479,7 +475,7 @@ class _BasePipe:
             self._send({}, OP_CLOSE)
             self._close()
         except Exception as e:
-            log.debug("Socket closed before command was received")
+            log.debug("Socket closed before command was received: %s", e)
 
         self._reader_stop.set()
         self._close_pending()
