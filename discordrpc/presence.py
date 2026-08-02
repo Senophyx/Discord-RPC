@@ -323,18 +323,53 @@ class _BasePipe:
 
     def _request(self, payload: dict, op: int = OP_FRAME) -> dict:
         self._send(payload, op)
-        res = self._recv()
+        opcode, res = self._read_frame()
+        if opcode != OP_FRAME:
+            return {"ok": False, "error": f"Unexpected opcode {opcode}", "response": res}
+        if not isinstance(res, dict):
+            return {"ok": False, "error": "Expected JSON object response", "response": res}
         if res.get("evt") == "ERROR":
-            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
+            data = res.get("data") or {}
+            return {
+                "ok": False,
+                "code": data.get("code"),
+                "error": data.get("message") or res.get("message"),
+                "response": res,
+            }
         return {"ok": True, **res}
 
     def _write(self, data: bytes):
         """Override in subclass to write bytes to the pipe."""
         raise NotImplementedError
 
-    def _recv(self):
-        """Override in subclass to receive data from the pipe."""
+    def _read_some(self, size: int) -> bytes:
+        """Override in subclass to read up to size bytes from the pipe."""
         raise NotImplementedError
+
+    def _read_exact(self, size: int) -> bytes:
+        chunks = []
+        remaining = size
+        while remaining:
+            chunk = self._read_some(remaining)
+            if not chunk:
+                raise OSError("Connection closed while reading IPC frame")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        return b"".join(chunks)
+
+    def _read_frame(self):
+        header = self._read_exact(8)
+        opcode, length = struct.unpack("<ii", header)
+        if length < 0 or length > 16 * 1024 * 1024:
+            raise ValueError(f"Invalid IPC frame length: {length}")
+        if length == 0:
+            return opcode, None
+        payload_bytes = self._read_exact(length)
+        try:
+            payload = json.loads(payload_bytes.decode("UTF-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            raise ValueError(f"Invalid IPC frame payload: {e}")
+        return opcode, payload
 
     def handshake(self):
         data = self._request({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
@@ -407,26 +442,8 @@ class WindowsPipe(_BasePipe):
     def _close(self):
         self.socket.close()
 
-    def _recv(self):
-        enc_header = b''
-        header_size = 8
-
-        while header_size:
-            enc_header += self.socket.read(header_size)
-            header_size -= len(enc_header)
-
-        dec_header = struct.unpack("<ii", enc_header)
-        enc_data = b''
-        remain_packet_size = int(dec_header[1])
-
-        while remain_packet_size:
-            enc_data += self.socket.read(remain_packet_size)
-            remain_packet_size -= len(enc_data)
-        
-        output = json.loads(enc_data.decode('UTF-8'))
-
-        log.debug(output)
-        return output
+    def _read_some(self, size: int) -> bytes:
+        return self.socket.read(size) or b""
 
     def read_with_timeout(self, timeout=1):
         handle = msvcrt.get_osfhandle(self.socket.fileno())
@@ -482,35 +499,11 @@ class UnixPipe(_BasePipe):
         return True
 
     def _write(self, data: bytes):
-        self.socket.send(data)
+        self.socket.sendall(data)
 
     def _close(self):
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
 
-    def _recv(self):
-        enc_header = b''
-        header_size = 8
-
-        while header_size:
-            chunk = self.socket.recv(header_size)
-            if not chunk:
-                break
-            enc_header += chunk
-            header_size -= len(chunk)
-
-        dec_header = struct.unpack("<ii", enc_header)
-        enc_data = b''
-        remain_packet_size = int(dec_header[1])
-
-        while remain_packet_size:
-            chunk = self.socket.recv(remain_packet_size)
-            if not chunk:
-                break
-            enc_data += chunk
-            remain_packet_size -= len(chunk)
-
-        output = json.loads(enc_data.decode('UTF-8'))
-
-        log.debug(output)
-        return output
+    def _read_some(self, size: int) -> bytes:
+        return self.socket.recv(size)
