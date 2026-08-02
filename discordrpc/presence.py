@@ -321,8 +321,8 @@ class _BasePipe:
         if not nonce:
             raise ValueError("RPC request payload must include a nonce")
 
-        self._start_reader()
         wait_queue = self._register_request(nonce)
+        self._start_reader()
         try:
             self._send(payload, op)
             try:
