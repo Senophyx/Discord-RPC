@@ -4,6 +4,7 @@ import socket
 import json
 import struct
 import uuid
+import threading
 from typing import Optional
 from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
@@ -16,9 +17,10 @@ from functools import cached_property
 import logging
 import time
 
-import msvcrt
-import win32pipe
-import threading
+if sys.platform == "win32":
+    import msvcrt
+    import win32file
+    import win32pipe
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
