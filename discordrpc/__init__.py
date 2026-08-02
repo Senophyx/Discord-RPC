@@ -5,6 +5,7 @@ from .exceptions import (
     RPCException, Error, DiscordNotOpened, ActivityError,
     InvalidURL, InvalidID, ButtonError, ProgressbarError,
     InvalidActivityType, ActivityTypeDisabled,
+    InvalidEvent, InvalidEventType,
 )
 from .types import Activity, StatusDisplay, User, Application, Event
 from .utils import remove_none, timestamp, date_to_timestamp, use_local_time, progress_bar, get_app_info
