@@ -219,12 +219,13 @@ class RPC:
                 log.debug(f"Event {event} already subscribed")
                 return
 
-            payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
-            res = self.ipc._request(payload)
-            if not res.get("ok"):
-                log.error("Failed to subscribe to %s: %s", event, res.get("error"))
-                return False
+        payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self.ipc._request(payload)
+        if not res.get("ok"):
+            log.error("Failed to subscribe to %s: %s", event, res.get("error"))
+            return False
 
+        with self._state_lock:
             self._subscriptions.add(event)
             self._event_callbacks.setdefault(event, [])
         log.info(f"Subscribed to {event}")
@@ -241,12 +242,13 @@ class RPC:
                 log.error(f"Event {event} not subscribed")
                 return
 
-            payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
-            res = self.ipc._request(payload)
-            if not res.get("ok"):
-                log.error("Failed to unsubscribe from %s: %s", event, res.get("error"))
-                return False
+        payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+        res = self.ipc._request(payload)
+        if not res.get("ok"):
+            log.error("Failed to unsubscribe from %s: %s", event, res.get("error"))
+            return False
 
+        with self._state_lock:
             self._subscriptions.discard(event)
             self._event_callbacks.pop(event, [])
         log.info(f"Unsubscribed from {event}")
