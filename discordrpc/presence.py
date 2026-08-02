@@ -18,11 +18,6 @@ from functools import cached_property
 import logging
 import time
 
-if sys.platform == "win32":
-    import msvcrt
-    import win32file
-    import win32pipe
-
 OP_HANDSHAKE = 0
 OP_FRAME = 1
 OP_CLOSE = 2
@@ -473,9 +468,6 @@ class _BasePipe:
         """Override in subclass to close the socket."""
         raise NotImplementedError
 
-    def read_with_timeout(self, timeout=1):
-        raise NotImplementedError
-
 
 class WindowsPipe(_BasePipe):
     def _connect_pipe(self):
@@ -514,26 +506,6 @@ class WindowsPipe(_BasePipe):
 
     def _read_some(self, size: int) -> bytes:
         return self.socket.read(size) or b""
-
-    def read_with_timeout(self, timeout=1):
-        handle = msvcrt.get_osfhandle(self.socket.fileno())
-        header_size = 8
-
-        end = time.time() + timeout
-
-        while time.time() < end:
-            _, available, _ = win32pipe.PeekNamedPipe(handle, 0)
-
-            if available >= header_size:
-                frame = self.socket.read(header_size)
-                if frame:
-                    dec_header = struct.unpack("<ii", frame)
-                    remain_packet_size = int(dec_header[1])
-                    enc_data = self.socket.read(remain_packet_size)
-                    output = json.loads(enc_data.decode('UTF-8'))
-                    return output
-
-            time.sleep(0.01)
 
 
 class UnixPipe(_BasePipe):
