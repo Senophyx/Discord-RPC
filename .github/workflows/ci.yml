@@ -8,7 +8,7 @@ on:
 
 jobs:
   checks:
-    name: Compile and import checks
+    name: Compile, import, and tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -25,3 +25,5 @@ jobs:
         run: python -m compileall discordrpc
       - name: Import package
         run: python -c "import discordrpc"
+      - name: Run tests
+        run: python tests/run_tests.py
