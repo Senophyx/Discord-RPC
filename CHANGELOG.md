@@ -14,15 +14,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Asset` object support in `set_activity()` — pass `rpc.assets.get("key")` directly as `large_image` / `small_image`
 - `utils.get_assets(app_id)` function to fetch assets without initializing `RPC`
 - `RPC.connected` read-only property as alias for `self.ipc.connected` (PR [#63](https://github.com/Senophyx/Discord-RPC/pull/63) by @SuperZombi)
+- Cross-platform event subscription with `Event` enum and `@rpc.on()` decorator (PR [#66](https://github.com/Senophyx/Discord-RPC/pull/66) by @SuperZombi)
+- `InvalidEvent` and `InvalidEventType` exceptions exported from the package root
+- `utils.required_url()` for validating required button URLs
 
 ### Changed
 - Bumped GitHub Actions versions: `checkout@v4→v6`, `setup-python@v4→v6` (PR [#62](https://github.com/Senophyx/Discord-RPC/pull/62) by @SuperZombi)
 - Link badges in `README.md` now point to local `CHANGELOG.md` and `DOCS.md` instead of `senophyx.id`
 - `DOCS.md` documentation URL in `pyproject.toml` updated to point to GitHub
+- IPC reads now preserve the opcode and route responses by nonce through a single background reader
+- Windows imports are now loaded only on Windows; the blocking reader no longer needs `msvcrt` or `win32pipe`
+- URL validation now checks the scheme and host instead of only a prefix
 
 ### Fixed
 - Indentation in `examples/assets.py` corrected to 4 spaces
 - `User.__str__`, `Application.__str__`, `Asset.__str__`, and `Asset.__repr__` reformatted to multi-line for codebase consistency
+- Invalid method annotations in `_send()` and `_request()` that prevented importing the package
+- Unread `PONG` responses no longer corrupt subsequent RPC requests
+- Incoming `PING` packets are answered with `PONG`
+- Event subscription state no longer mixes callback storage with subscription state
+- Failed subscriptions no longer register callbacks locally
+- Reader thread stops after the last unsubscribe and is cleaned up during disconnect
 
 ## [6.0] - 2026-07-21
 
