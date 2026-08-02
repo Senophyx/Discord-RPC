@@ -5,6 +5,7 @@ import json
 import struct
 import uuid
 import threading
+import queue
 from typing import Optional
 from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
@@ -56,7 +57,6 @@ class RPC:
             log.disabled = True
 
         self.is_running = False
-        self._reader_thread = None
         self._event_callbacks = {}
         self._setup()
 
@@ -68,12 +68,7 @@ class RPC:
             
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
-
-    def _start_event_listener(self):
-        if self._reader_thread and self._reader_thread.is_alive():
-            return
-        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
-        self._reader_thread.start()
+        self.ipc._on_event = self._dispatch
 
     @property
     def connected(self): return self.ipc.connected
@@ -225,7 +220,6 @@ class RPC:
 
         self._event_callbacks.setdefault(event, [])
         log.info(f"Subscribed to {event}")
-        self._start_event_listener()
         return True
 
     def unsubscribe(self, event: str):
@@ -261,21 +255,6 @@ class RPC:
  
         return decorator
 
-    def _reader_loop(self):
-        log.debug("Starting events listener")
-        while self.ipc.connected:
-            try:
-                frame = self.ipc.read_with_timeout()
-            except Exception as e:
-                log.debug(f"IPC reader stopping: {e}")
-                break
- 
-            if not frame:
-                continue
-
-            if frame.get('cmd') == 'DISPATCH':
-                self._dispatch(frame.get('evt'), frame.get('data', {}) or {})
-
     def _dispatch(self, evt: str, data: dict):
         for callback in self._event_callbacks.get(evt, []):
             try:
@@ -308,6 +287,11 @@ class _BasePipe:
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
         self.connected = self._connect_pipe()
+        self._write_lock = threading.Lock()
+        self._pending_requests = {}
+        self._pending_lock = threading.Lock()
+        self._reader_thread = None
+        self._reader_stop = threading.Event()
 
     def _connect_pipe(self):
         """Override in subclass to establish the pipe connection. Returns True on success."""
@@ -319,24 +303,94 @@ class _BasePipe:
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
 
-        self._write(payload)
+        with self._write_lock:
+            self._write(payload)
 
-    def _request(self, payload: dict, op: int = OP_FRAME) -> dict:
-        self._send(payload, op)
-        opcode, res = self._read_frame()
+    def _register_request(self, nonce):
+        q = queue.Queue(maxsize=1)
+        with self._pending_lock:
+            self._pending_requests[nonce] = q
+        return q
+
+    def _unregister_request(self, nonce):
+        with self._pending_lock:
+            self._pending_requests.pop(nonce, None)
+
+    def _request(self, payload: dict, op: int = OP_FRAME, timeout: float = 10.0) -> dict:
+        nonce = payload.get("nonce")
+        if not nonce:
+            raise ValueError("RPC request payload must include a nonce")
+
+        self._start_reader()
+        wait_queue = self._register_request(nonce)
+        try:
+            self._send(payload, op)
+            try:
+                res = wait_queue.get(timeout=timeout)
+            except queue.Empty:
+                return {"ok": False, "error": "RPC request timed out", "response": None}
+        finally:
+            self._unregister_request(nonce)
+
+        opcode, payload_res = res
         if opcode != OP_FRAME:
-            return {"ok": False, "error": f"Unexpected opcode {opcode}", "response": res}
-        if not isinstance(res, dict):
-            return {"ok": False, "error": "Expected JSON object response", "response": res}
-        if res.get("evt") == "ERROR":
-            data = res.get("data") or {}
+            return {"ok": False, "error": f"Unexpected opcode {opcode}", "response": payload_res}
+        if not isinstance(payload_res, dict):
+            return {"ok": False, "error": "Expected JSON object response", "response": payload_res}
+        if payload_res.get("evt") == "ERROR":
+            data = payload_res.get("data") or {}
             return {
                 "ok": False,
                 "code": data.get("code"),
-                "error": data.get("message") or res.get("message"),
-                "response": res,
+                "error": data.get("message") or payload_res.get("message"),
+                "response": payload_res,
             }
-        return {"ok": True, **res}
+        if payload_res.get("nonce") != nonce:
+            return {"ok": False, "error": "RPC response nonce mismatch", "response": payload_res}
+        return {"ok": True, **payload_res}
+
+    def _start_reader(self):
+        if self._reader_thread and self._reader_thread.is_alive():
+            return
+        self._reader_stop.clear()
+        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
+        self._reader_thread.start()
+
+    def _reader_loop(self):
+        while self.connected and not self._reader_stop.is_set():
+            try:
+                frame = self._read_frame()
+            except Exception as e:
+                log.debug(f"IPC reader stopping: {e}")
+                break
+            if frame is None:
+                continue
+            opcode, payload = frame
+            if payload is None:
+                continue
+            if not isinstance(payload, dict):
+                continue
+            if opcode == OP_PING:
+                self._send(payload, OP_PONG)
+                continue
+            if opcode == OP_FRAME:
+                nonce = payload.get("nonce")
+                if nonce:
+                    with self._pending_lock:
+                        pending = self._pending_requests.get(nonce)
+                    if pending:
+                        pending.put((opcode, payload))
+                        continue
+                if payload.get("cmd") == "DISPATCH":
+                    self._on_event(payload.get("evt"), payload.get("data") or {})
+                continue
+            if opcode == OP_CLOSE:
+                log.debug("Received OP_CLOSE from Discord")
+                self.connected = False
+                break
+
+    def _on_event(self, evt, data):
+        """Override in subclass or by RPC to dispatch events."""
 
     def _write(self, data: bytes):
         """Override in subclass to write bytes to the pipe."""
@@ -392,12 +446,21 @@ class _BasePipe:
         except Exception as e:
             log.debug("Socket closed before command was received")
 
+        self._reader_stop.set()
+        self._close_pending()
         self.socket = None
         self.connected = False
 
         log.warning("Closing RPC")
         if self.exit_on_disconnect:
             sys.exit()
+
+    def _close_pending(self):
+        with self._pending_lock:
+            pending = self._pending_requests
+            self._pending_requests = {}
+        for queue in pending.values():
+            queue.put((OP_CLOSE, None))
 
     def _close(self):
         """Override in subclass to close the socket."""
