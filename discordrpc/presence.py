@@ -311,7 +311,7 @@ class _BasePipe:
         """Override in subclass to establish the pipe connection. Returns True on success."""
         raise NotImplementedError
 
-    def _send(self, payload, op=OP_FRAME: int):
+    def _send(self, payload, op: int = OP_FRAME):
         log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
@@ -319,7 +319,7 @@ class _BasePipe:
 
         self._write(payload)
 
-    def _request(self, payload: dict, op=OP_FRAME: int) -> dict:
+    def _request(self, payload: dict, op: int = OP_FRAME) -> dict:
         self._send(payload, op)
         res = self._recv()
         if res.get("evt") == "ERROR":
