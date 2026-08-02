@@ -53,6 +53,8 @@ class RPC:
 
         self.is_running = False
         self._event_callbacks = {}
+        self._subscriptions = set()
+        self._state_lock = threading.Lock()
         self._setup()
 
     def _setup(self):
@@ -194,64 +196,95 @@ class RPC:
 
         self.ipc.disconnect()
         self.is_running = False
+        with self._state_lock:
+            self._subscriptions.clear()
+            self._event_callbacks.clear()
 
-    def subscribe(self, event: str):
-        if event not in [event.value for event in Event]:
+    def _normalize_event(self, event):
+        if isinstance(event, Event):
+            return event.value
+        if isinstance(event, str):
+            values = {e.value for e in Event}
+            if event in values:
+                return event
             raise InvalidEvent(event)
+        raise InvalidEventType(type(event).__name__)
+
+    def subscribe(self, event) -> Optional[bool]:
+        event = self._normalize_event(event)
 
         if not self.ipc.connected:
             return
 
-        if event in self._event_callbacks.keys():
-            log.debug(f"Event {event} already registered")
-            return
- 
-        payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
-        res = self.ipc._request(payload)
-        if not res.get("ok"):
-            log.error(f'Failed to subscribe to {event}')
-            log.error(res.get("error"))
-            return False
+        with self._state_lock:
+            if event in self._subscriptions:
+                log.debug(f"Event {event} already subscribed")
+                return
 
-        self._event_callbacks.setdefault(event, [])
+            payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+            res = self.ipc._request(payload)
+            if not res.get("ok"):
+                log.error(f'Failed to subscribe to {event}')
+                log.error(res.get("error"))
+                return False
+
+            self._subscriptions.add(event)
+            self._event_callbacks.setdefault(event, [])
         log.info(f"Subscribed to {event}")
         return True
 
-    def unsubscribe(self, event: str):
-        if event not in [event.value for event in Event]:
-            raise InvalidEvent(event)
+    def unsubscribe(self, event) -> Optional[bool]:
+        event = self._normalize_event(event)
 
         if not self.ipc.connected:
             return
 
-        if not event in self._event_callbacks.keys():
-            log.error(f"Event {event} not registered")
-            return
- 
-        payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
-        res = self.ipc._request(payload)
-        if not res.get("ok"):
-            log.error(f'Failed to unsubscribe from {event}')
-            log.error(res.get("error"))
-            return False
+        with self._state_lock:
+            if event not in self._subscriptions:
+                log.error(f"Event {event} not subscribed")
+                return
 
-        self._event_callbacks.pop(event, [])
+            payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
+            res = self.ipc._request(payload)
+            if not res.get("ok"):
+                log.error(f'Failed to unsubscribe from {event}')
+                log.error(res.get("error"))
+                return False
+
+            self._subscriptions.discard(event)
+            self._event_callbacks.pop(event, [])
         log.info(f"Unsubscribed from {event}")
+        self._stop_reader_if_idle()
         return True
 
     def on(self, event: Event):
         if type(event) != Event:
-            raise InvalidEventType(type(event))
- 
+            raise InvalidEventType(type(event).__name__)
+
         def decorator(callback):
-            self.subscribe(event.value)
-            self._event_callbacks.setdefault(event.value, []).append(callback)
+            result = self.subscribe(event)
+            if not result:
+                raise RPCException(f"Failed to subscribe to {event.value}")
+            with self._state_lock:
+                self._event_callbacks.setdefault(event.value, []).append(callback)
             return callback
- 
+
         return decorator
 
+    def _stop_reader_if_idle(self):
+        with self._state_lock:
+            idle = not self._subscriptions
+        if idle and self.ipc._reader_thread and self.ipc._reader_thread.is_alive():
+            self.ipc._reader_stop.set()
+            try:
+                self.ipc._close()
+            except Exception:
+                pass
+
     def _dispatch(self, evt: str, data: dict):
-        for callback in self._event_callbacks.get(evt, []):
+        with self._state_lock:
+            callbacks = list(self._event_callbacks.get(evt, []))
+        for callback in callbacks:
             try:
                 callback(data)
             except Exception as e:
@@ -450,6 +483,10 @@ class _BasePipe:
 
         self._reader_stop.set()
         self._close_pending()
+        reader = self._reader_thread
+        if reader and reader.is_alive() and reader is not threading.current_thread():
+            reader.join(timeout=2)
+        self._reader_thread = None
         self.socket = None
         self.connected = False
 
