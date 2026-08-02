@@ -321,6 +321,23 @@ Supported events (from `discordrpc.Event`):
 
 Only these activity events are currently exposed. Other Discord RPC events are not supported yet.
 
+### Enabling JOIN and SPECTATE events
+
+- `party_id` is **required** for the "Ask to Join" button and the `ACTIVITY_JOIN_REQUEST` event to work. Without it, Discord cannot resolve the party, the event is never delivered, and the requester gets "Your message could not be delivered."
+- `join_secret` and `spectate_secret` must have **different values**. Discord rejects the activity with `secrets must be unique` when they match.
+
+A minimal working setup:
+
+```python
+rpc.set_activity(
+    name="VALORANT",
+    details="Valorant Ranked",
+    party_id=1234,
+    join_secret="anything",
+    spectate_secret="idk",
+)
+```
+
 ### Direct subscribe and unsubscribe
 
 ```python
