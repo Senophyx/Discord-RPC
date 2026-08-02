@@ -23,6 +23,20 @@ class FakePipe(_BasePipe):
 
     def _write(self, data):
         self._out.put(data)
+        # Auto-respond to any request carrying a nonce so subscribe()/unsubscribe()
+        # can complete without a real Discord server.
+        opcode, length = struct.unpack("<ii", data[:8])
+        if length == 0:
+            return
+        try:
+            payload = json.loads(data[8:8 + length].decode("UTF-8"))
+        except (ValueError, UnicodeDecodeError):
+            return
+        nonce = payload.get("nonce")
+        if nonce:
+            response = {"cmd": payload.get("cmd"), "nonce": nonce, "data": {}}
+            body = json.dumps(response).encode("UTF-8")
+            self._in.put(struct.pack("<ii", OP_FRAME, len(body)) + body)
 
     def _read_some(self, size):
         if self._buffer:
@@ -137,6 +151,51 @@ class ReaderLifecycleTests(unittest.TestCase):
         rpc.ipc._close()
         time.sleep(0.2)
         self.assertFalse(thread.is_alive())
+
+    def test_stop_reader_marks_pipe_disconnected(self):
+        rpc = make_rpc()
+        rpc.ipc._start_reader()
+        thread = rpc.ipc._reader_thread
+        with rpc._state_lock:
+            rpc._subscriptions.add("ACTIVITY_JOIN")
+        with rpc._state_lock:
+            rpc._subscriptions.discard("ACTIVITY_JOIN")
+        rpc._stop_reader_if_idle()
+        time.sleep(0.2)
+        self.assertFalse(thread.is_alive())
+        # The pipe must be marked disconnected so a later set_activity() can reconnect.
+        self.assertFalse(rpc.ipc.connected)
+
+
+class DuplicateHandlerTests(unittest.TestCase):
+    def test_two_handlers_for_same_event_both_register(self):
+        rpc = make_rpc()
+        calls = []
+
+        def handler_a(data):
+            calls.append(("a", data))
+
+        def handler_b(data):
+            calls.append(("b", data))
+
+        # Register both handlers for the same event by calling subscribe() twice,
+        # simulating stacked decorators: @rpc.on(Event.JOIN) twice.
+        self.assertTrue(rpc.subscribe(Event.JOIN))
+        self.assertTrue(rpc.subscribe(Event.JOIN))
+
+        with rpc._state_lock:
+            rpc._event_callbacks.setdefault("ACTIVITY_JOIN", []).append(handler_a)
+            rpc._event_callbacks.setdefault("ACTIVITY_JOIN", []).append(handler_b)
+
+        rpc._dispatch("ACTIVITY_JOIN", {"x": 1})
+        self.assertEqual(calls, [("a", {"x": 1}), ("b", {"x": 1})])
+
+    def test_subscribe_idempotent_returns_true(self):
+        rpc = make_rpc()
+        self.assertTrue(rpc.subscribe(Event.JOIN))
+        # Second subscribe for the same event should be a no-op but still True,
+        # so @rpc.on() can stack another handler.
+        self.assertTrue(rpc.subscribe(Event.JOIN))
 
 
 if __name__ == "__main__":

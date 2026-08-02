@@ -217,7 +217,7 @@ class RPC:
         with self._state_lock:
             if event in self._subscriptions:
                 log.debug(f"Event {event} already subscribed")
-                return
+                return True
 
         payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
         res = self.ipc._request(payload)
@@ -278,6 +278,7 @@ class RPC:
                 self.ipc._close()
             except Exception:
                 pass
+            self.ipc.connected = False
 
     def _dispatch(self, evt: str, data: dict):
         with self._state_lock:
