@@ -1,6 +1,7 @@
 import time
 import json
 import urllib.request
+import urllib.parse
 from datetime import datetime
 import logging
 from .exceptions import ProgressbarError, InvalidURL
@@ -30,10 +31,23 @@ def date_to_timestamp(date:str):
         datetime.strptime(date, "%d/%m/%Y-%H:%M:%S").timetuple()
     ))
 
-def valid_url(url:str) -> str:
-    if url and not url.startswith(("http://", "https://")):
-        raise InvalidURL()
+def _validate_url(url, required: bool):
+    if url is None:
+        if required:
+            raise InvalidURL("URL must be a valid http:// or https:// URL")
+        return url
+    if not isinstance(url, str) or not url:
+        raise InvalidURL("URL must be a valid http:// or https:// URL")
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise InvalidURL("URL must be a valid http:// or https:// URL")
     return url
+
+def valid_url(url):
+    return _validate_url(url, required=False)
+
+def required_url(url):
+    return _validate_url(url, required=True)
 
 def use_local_time():
     now = datetime.now()

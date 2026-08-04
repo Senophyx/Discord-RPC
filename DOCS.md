@@ -295,6 +295,76 @@ from discordrpc import StatusDisplay
 
 ---
 
+## Events
+
+You can subscribe to Rich Presence events and receive callbacks when they fire.
+
+```python
+import discordrpc
+from discordrpc import Event
+
+rpc = discordrpc.RPC(app_id=123456789)
+
+@rpc.on(Event.JOIN_REQUEST)
+def on_join_request(data):
+    print("Ask to Join:", data)
+
+rpc.run()
+```
+
+Supported events (from `discordrpc.Event`):
+
+- `Event.JOIN` (`ACTIVITY_JOIN`)
+- `Event.JOIN_REQUEST` (`ACTIVITY_JOIN_REQUEST`)
+- `Event.SPECTATE` (`ACTIVITY_SPECTATE`)
+- `Event.INVITE` (`ACTIVITY_INVITE`)
+
+Only these activity events are currently exposed. Other Discord RPC events are not supported yet.
+
+### Enabling JOIN and SPECTATE events
+
+- `party_id` is **required** for the "Ask to Join" button and the `ACTIVITY_JOIN_REQUEST` event to work. Without it, Discord cannot resolve the party, the event is never delivered, and the requester gets "Your message could not be delivered."
+- `join_secret` and `spectate_secret` must have **different values**. Discord rejects the activity with `secrets must be unique` when they match.
+
+A minimal working setup:
+
+```python
+rpc.set_activity(
+    name="VALORANT",
+    details="Valorant Ranked",
+    party_id=1234,
+    join_secret="anything",
+    spectate_secret="idk",
+)
+```
+
+### Direct subscribe and unsubscribe
+
+```python
+rpc.subscribe("ACTIVITY_JOIN")        # string form accepted
+rpc.subscribe(Event.JOIN)             # enum form accepted
+rpc.unsubscribe(Event.JOIN)
+```
+
+- `subscribe()` / `unsubscribe()` accept either an `Event` member or a valid event string.
+- An unknown event name raises `InvalidEvent`.
+- A non-string, non-enum value raises `InvalidEventType`.
+- The `@rpc.on()` decorator raises `RPCException` if the subscription is rejected by Discord.
+
+### Callback behavior
+
+- Callbacks run on the internal IPC reader thread. Keep them short and non-blocking.
+- A slow callback delays processing of other events and responses.
+- An exception raised inside a callback is logged and does not stop the reader.
+- Use locks or queues if your callback touches shared state.
+
+### Disconnect and reconnect
+
+- `disconnect()` clears all subscriptions and callbacks.
+- After a reconnect, call `subscribe()` again if you want events.
+
+---
+
 ## Exceptions
 
 All exceptions extend `RPCException`.
@@ -305,12 +375,14 @@ All exceptions extend `RPCException`.
 | `Error(message)` | Generic user error |
 | `DiscordNotOpened()` | Discord not found/running |
 | `ActivityError()` | Invalid activity payload |
-| `InvalidURL()` | URL not starting with http/https |
+| `InvalidURL(message)` | URL is not a valid http/https URL |
 | `InvalidID()` | Invalid Application ID |
 | `ButtonError(message)` | Button limit exceeded |
 | `ProgressbarError(message)` | Invalid progress values |
 | `InvalidActivityType(message)` | act_type not a valid Activity |
 | `ActivityTypeDisabled()` | Streaming/Custom blocked by Discord |
+| `InvalidEvent(message)` | Event name is not subscribable |
+| `InvalidEventType(message)` | Event input is not a string or Event |
 
 ---
 
