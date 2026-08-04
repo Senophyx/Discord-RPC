@@ -4,6 +4,8 @@ import socket
 import json
 import struct
 import uuid
+import threading
+import queue
 from typing import Optional
 from .exceptions import (
     RPCException, InvalidID, DiscordNotOpened,
@@ -11,14 +13,10 @@ from .exceptions import (
     InvalidEvent, InvalidEventType,
 )
 from .types import Activity, StatusDisplay, User, Application, Asset, AssetManager, Event
-from .utils import remove_none, get_app_info, get_assets, valid_url
+from .utils import remove_none, get_app_info, get_assets, valid_url, required_url
 from functools import cached_property
 import logging
 import time
-
-import msvcrt
-import win32pipe
-import threading
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
@@ -54,8 +52,9 @@ class RPC:
             log.disabled = True
 
         self.is_running = False
-        self._reader_thread = None
         self._event_callbacks = {}
+        self._subscriptions = set()
+        self._state_lock = threading.Lock()
         self._setup()
 
     def _setup(self):
@@ -66,12 +65,7 @@ class RPC:
             
         if not self.ipc.connected: return
         self._user_data = self.ipc.handshake()
-
-    def _start_event_listener(self):
-        if self._reader_thread and self._reader_thread.is_alive():
-            return
-        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
-        self._reader_thread.start()
+        self.ipc._on_event = self._dispatch
 
     @property
     def connected(self): return self.ipc.connected
@@ -118,6 +112,17 @@ class RPC:
 
         if buttons and len(buttons) > 2:
             raise ButtonError("Max 2 buttons allowed")
+
+        # Validate button URLs so invalid URLs are caught client-side instead of
+        # being silently rejected by Discord (or missing from the presence).
+        if buttons:
+            buttons = [
+                {
+                    "label": item.get("label") if isinstance(item, dict) else None,
+                    "url": required_url(item.get("url") if isinstance(item, dict) else item),
+                }
+                for item in buttons
+            ]
 
         large_image = large_image.name if isinstance(large_image, Asset) else large_image
         small_image = small_image.name if isinstance(small_image, Asset) else small_image
@@ -179,16 +184,14 @@ class RPC:
             res = self.ipc._request(payload)
             if not res.get("ok"):
                 self.is_running = False
-                log.error('Failed to set RPC')
-                log.error(res.get("error"))
+                log.error("Failed to set RPC: %s", res.get("error"))
                 return False
             
             self.is_running = True
-            log.info('RPC set')
+            log.info("RPC set")
             return True
-        except Exception as e:
-            log.error('Failed to set RPC')
-            log.error(e)
+        except Exception:
+            log.exception("Failed to set RPC")
             self.disconnect()
             return False
 
@@ -202,84 +205,100 @@ class RPC:
 
         self.ipc.disconnect()
         self.is_running = False
+        with self._state_lock:
+            self._subscriptions.clear()
+            self._event_callbacks.clear()
 
-    def subscribe(self, event: str):
-        if event not in [event.value for event in Event]:
+    def _normalize_event(self, event):
+        if isinstance(event, Event):
+            return event.value
+        if isinstance(event, str):
+            values = {e.value for e in Event}
+            if event in values:
+                return event
             raise InvalidEvent(event)
+        raise InvalidEventType(type(event).__name__)
+
+    def subscribe(self, event) -> Optional[bool]:
+        event = self._normalize_event(event)
 
         if not self.ipc.connected:
             return
 
-        if event in self._event_callbacks.keys():
-            log.debug(f"Event {event} already registered")
-            return
- 
+        with self._state_lock:
+            if event in self._subscriptions:
+                log.debug(f"Event {event} already subscribed")
+                return True
+
         payload = {"cmd": "SUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
         res = self.ipc._request(payload)
         if not res.get("ok"):
-            log.error(f'Failed to subscribe to {event}')
-            log.error(res.get("error"))
+            log.error("Failed to subscribe to %s: %s", event, res.get("error"))
             return False
 
-        self._event_callbacks.setdefault(event, [])
+        with self._state_lock:
+            self._subscriptions.add(event)
+            self._event_callbacks.setdefault(event, [])
         log.info(f"Subscribed to {event}")
-        self._start_event_listener()
         return True
 
-    def unsubscribe(self, event: str):
-        if event not in [event.value for event in Event]:
-            raise InvalidEvent(event)
+    def unsubscribe(self, event) -> Optional[bool]:
+        event = self._normalize_event(event)
 
         if not self.ipc.connected:
             return
 
-        if not event in self._event_callbacks.keys():
-            log.error(f"Event {event} not registered")
-            return
- 
+        with self._state_lock:
+            if event not in self._subscriptions:
+                log.error(f"Event {event} not subscribed")
+                return
+
         payload = {"cmd": "UNSUBSCRIBE", "args": {}, "evt": event, "nonce": str(uuid.uuid4())}
         res = self.ipc._request(payload)
         if not res.get("ok"):
-            log.error(f'Failed to unsubscribe from {event}')
-            log.error(res.get("error"))
+            log.error("Failed to unsubscribe from %s: %s", event, res.get("error"))
             return False
 
-        self._event_callbacks.pop(event, [])
+        with self._state_lock:
+            self._subscriptions.discard(event)
+            self._event_callbacks.pop(event, [])
         log.info(f"Unsubscribed from {event}")
+        self._stop_reader_if_idle()
         return True
 
     def on(self, event: Event):
         if type(event) != Event:
-            raise InvalidEventType(type(event))
- 
+            raise InvalidEventType(type(event).__name__)
+
         def decorator(callback):
-            self.subscribe(event.value)
-            self._event_callbacks.setdefault(event.value, []).append(callback)
+            result = self.subscribe(event)
+            if not result:
+                raise RPCException(f"Failed to subscribe to {event.value}")
+            with self._state_lock:
+                self._event_callbacks.setdefault(event.value, []).append(callback)
             return callback
- 
+
         return decorator
 
-    def _reader_loop(self):
-        log.debug("Starting events listener")
-        while self.ipc.connected:
+    def _stop_reader_if_idle(self):
+        with self._state_lock:
+            idle = not self._subscriptions
+        if idle and self.ipc._reader_thread and self.ipc._reader_thread.is_alive():
+            self.ipc._reader_stop.set()
             try:
-                frame = self.ipc.read_with_timeout()
-            except Exception as e:
-                log.debug(f"IPC reader stopping: {e}")
-                break
- 
-            if not frame:
-                continue
-
-            if frame.get('cmd') == 'DISPATCH':
-                self._dispatch(frame.get('evt'), frame.get('data', {}) or {})
+                self.ipc._close()
+            except Exception:
+                pass
+            self.ipc.connected = False
 
     def _dispatch(self, evt: str, data: dict):
-        for callback in self._event_callbacks.get(evt, []):
+        with self._state_lock:
+            callbacks = list(self._event_callbacks.get(evt, []))
+        for callback in callbacks:
             try:
                 callback(data)
-            except Exception as e:
-                log.error(f"Error in '{evt}' event callback: {e}")
+            except Exception:
+                log.exception("Error in '%s' event callback", evt)
 
     def run(self, update_every:int=1, ping_every:int=15):
         try:
@@ -306,55 +325,196 @@ class _BasePipe:
         self.exit_if_discord_close = exit_if_discord_close
         self.exit_on_disconnect = exit_on_disconnect
         self.connected = self._connect_pipe()
+        self._write_lock = threading.Lock()
+        self._pending_requests = {}
+        self._pending_lock = threading.Lock()
+        self._reader_thread = None
+        self._reader_stop = threading.Event()
 
     def _connect_pipe(self):
         """Override in subclass to establish the pipe connection. Returns True on success."""
         raise NotImplementedError
 
-    def _send(self, payload, op=OP_FRAME: int):
+    def _send(self, payload, op: int = OP_FRAME):
         log.debug(payload)
 
         payload = json.dumps(payload).encode('UTF-8')
         payload = struct.pack('<ii', op, len(payload)) + payload
 
-        self._write(payload)
+        with self._write_lock:
+            self._write(payload)
 
-    def _request(self, payload: dict, op=OP_FRAME: int) -> dict:
-        self._send(payload, op)
-        res = self._recv()
-        if res.get("evt") == "ERROR":
-            return {"ok": False, "error": res.get("data", {}).get("message"), **res}
-        return {"ok": True, **res}
+    def _register_request(self, nonce):
+        q = queue.Queue(maxsize=1)
+        with self._pending_lock:
+            self._pending_requests[nonce] = q
+        return q
+
+    def _unregister_request(self, nonce):
+        with self._pending_lock:
+            self._pending_requests.pop(nonce, None)
+
+    def _request(self, payload: dict, op: int = OP_FRAME, timeout: float = 10.0) -> dict:
+        nonce = payload.get("nonce")
+        if not nonce:
+            raise ValueError("RPC request payload must include a nonce")
+
+        wait_queue = self._register_request(nonce)
+        self._start_reader()
+        try:
+            self._send(payload, op)
+            try:
+                res = wait_queue.get(timeout=timeout)
+            except queue.Empty:
+                return {"ok": False, "error": "RPC request timed out", "response": None}
+        finally:
+            self._unregister_request(nonce)
+
+        opcode, payload_res = res
+        if opcode != OP_FRAME:
+            return {"ok": False, "error": f"Unexpected opcode {opcode}", "response": payload_res}
+        if not isinstance(payload_res, dict):
+            return {"ok": False, "error": "Expected JSON object response", "response": payload_res}
+        if payload_res.get("evt") == "ERROR":
+            data = payload_res.get("data") or {}
+            return {
+                "ok": False,
+                "code": data.get("code"),
+                "error": data.get("message") or payload_res.get("message"),
+                "response": payload_res,
+            }
+        if payload_res.get("nonce") != nonce:
+            return {"ok": False, "error": "RPC response nonce mismatch", "response": payload_res}
+        return {"ok": True, **payload_res}
+
+    def _start_reader(self):
+        if self._reader_thread and self._reader_thread.is_alive():
+            return
+        self._reader_stop.clear()
+        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
+        self._reader_thread.start()
+
+    def _reader_loop(self):
+        while self.connected and not self._reader_stop.is_set():
+            try:
+                frame = self._read_frame()
+            except Exception as e:
+                log.debug(f"IPC reader stopping: {e}")
+                break
+            if frame is None:
+                continue
+            opcode, payload = frame
+            if payload is None:
+                continue
+            if not isinstance(payload, dict):
+                continue
+            if opcode == OP_PING:
+                self._send(payload, OP_PONG)
+                continue
+            if opcode == OP_FRAME:
+                nonce = payload.get("nonce")
+                if nonce:
+                    with self._pending_lock:
+                        pending = self._pending_requests.get(nonce)
+                    if pending:
+                        pending.put((opcode, payload))
+                        continue
+                if payload.get("cmd") == "DISPATCH":
+                    self._on_event(payload.get("evt"), payload.get("data") or {})
+                continue
+            if opcode == OP_CLOSE:
+                log.debug("Received OP_CLOSE from Discord")
+                self.connected = False
+                break
+
+    def _on_event(self, evt, data):
+        """Override in subclass or by RPC to dispatch events."""
 
     def _write(self, data: bytes):
         """Override in subclass to write bytes to the pipe."""
         raise NotImplementedError
 
-    def _recv(self):
-        """Override in subclass to receive data from the pipe."""
+    def _read_some(self, size: int) -> bytes:
+        """Override in subclass to read up to size bytes from the pipe."""
         raise NotImplementedError
 
-    def handshake(self):
-        data = self._request({'v': 1, 'client_id': self.app_id}, op=OP_HANDSHAKE)
+    def _read_exact(self, size: int) -> bytes:
+        chunks = []
+        remaining = size
+        while remaining:
+            chunk = self._read_some(remaining)
+            if not chunk:
+                raise OSError("Connection closed while reading IPC frame")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        return b"".join(chunks)
 
-        if data.get('cmd') == 'DISPATCH' and data.get('evt') == 'READY':
-            user = data.get('data', {}).get('user')
+    def _read_frame(self):
+        header = self._read_exact(8)
+        opcode, length = struct.unpack("<ii", header)
+        if length < 0 or length > 16 * 1024 * 1024:
+            raise ValueError(f"Invalid IPC frame length: {length}")
+        if length == 0:
+            return opcode, None
+        payload_bytes = self._read_exact(length)
+        try:
+            payload = json.loads(payload_bytes.decode("UTF-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            raise ValueError(f"Invalid IPC frame payload: {e}")
+        return opcode, payload
+
+    def _handle_handshake_error(self, payload):
+        code = payload.get("code")
+        message = payload.get("error") or "Handshake failed"
+        if code == 4000 or "invalid" in str(message).lower():
+            raise InvalidID()
+        raise RPCException(f"Handshake failed: {message}")
+
+    def handshake(self):
+        self._send({'v': 1, 'client_id': self.app_id}, OP_HANDSHAKE)
+
+        opcode, payload = self._read_frame()
+        if payload is None:
+            raise RPCException("Handshake did not receive a READY event")
+
+        if opcode == OP_CLOSE:
+            self.connected = False
+            raise RPCException("Handshake closed by Discord before READY")
+
+        if not isinstance(payload, dict):
+            raise RPCException("Handshake did not receive a READY event")
+
+        if payload.get("evt") == "ERROR":
+            data = payload.get("data") or {}
+            error_payload = {
+                "ok": False,
+                "code": data.get("code"),
+                "error": data.get("message") or payload.get("message"),
+                "response": payload,
+            }
+            self._handle_handshake_error(error_payload)
+
+        if payload.get("cmd") == "DISPATCH" and payload.get("evt") == "READY":
+            user = payload.get("data", {}).get("user")
             if user:
                 log.info(f"Connected to {user.get('username')} ({user.get('id')})")
                 return user
 
-        if data.get('code') == 4000:
-            raise InvalidID()
-
-        raise RPCException()
+        raise RPCException("Handshake did not receive a READY event")
 
     def disconnect(self):
         try:
             self._send({}, OP_CLOSE)
             self._close()
         except Exception as e:
-            log.debug("Socket closed before command was received")
+            log.debug("Socket closed before command was received: %s", e)
 
+        self._reader_stop.set()
+        self._close_pending()
+        reader = self._reader_thread
+        if reader and reader.is_alive() and reader is not threading.current_thread():
+            reader.join(timeout=2)
+        self._reader_thread = None
         self.socket = None
         self.connected = False
 
@@ -362,11 +522,15 @@ class _BasePipe:
         if self.exit_on_disconnect:
             sys.exit()
 
+    def _close_pending(self):
+        with self._pending_lock:
+            pending = self._pending_requests
+            self._pending_requests = {}
+        for queue in pending.values():
+            queue.put((OP_CLOSE, None))
+
     def _close(self):
         """Override in subclass to close the socket."""
-        raise NotImplementedError
-
-    def read_with_timeout(self, timeout=1):
         raise NotImplementedError
 
 
@@ -405,46 +569,8 @@ class WindowsPipe(_BasePipe):
     def _close(self):
         self.socket.close()
 
-    def _recv(self):
-        enc_header = b''
-        header_size = 8
-
-        while header_size:
-            enc_header += self.socket.read(header_size)
-            header_size -= len(enc_header)
-
-        dec_header = struct.unpack("<ii", enc_header)
-        enc_data = b''
-        remain_packet_size = int(dec_header[1])
-
-        while remain_packet_size:
-            enc_data += self.socket.read(remain_packet_size)
-            remain_packet_size -= len(enc_data)
-        
-        output = json.loads(enc_data.decode('UTF-8'))
-
-        log.debug(output)
-        return output
-
-    def read_with_timeout(self, timeout=1):
-        handle = msvcrt.get_osfhandle(self.socket.fileno())
-        header_size = 8
-
-        end = time.time() + timeout
-
-        while time.time() < end:
-            _, available, _ = win32pipe.PeekNamedPipe(handle, 0)
-
-            if available >= header_size:
-                frame = self.socket.read(header_size)
-                if frame:
-                    dec_header = struct.unpack("<ii", frame)
-                    remain_packet_size = int(dec_header[1])
-                    enc_data = self.socket.read(remain_packet_size)
-                    output = json.loads(enc_data.decode('UTF-8'))
-                    return output
-
-            time.sleep(0.01)
+    def _read_some(self, size: int) -> bytes:
+        return self.socket.read(size) or b""
 
 
 class UnixPipe(_BasePipe):
@@ -480,35 +606,11 @@ class UnixPipe(_BasePipe):
         return True
 
     def _write(self, data: bytes):
-        self.socket.send(data)
+        self.socket.sendall(data)
 
     def _close(self):
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
 
-    def _recv(self):
-        enc_header = b''
-        header_size = 8
-
-        while header_size:
-            chunk = self.socket.recv(header_size)
-            if not chunk:
-                break
-            enc_header += chunk
-            header_size -= len(chunk)
-
-        dec_header = struct.unpack("<ii", enc_header)
-        enc_data = b''
-        remain_packet_size = int(dec_header[1])
-
-        while remain_packet_size:
-            chunk = self.socket.recv(remain_packet_size)
-            if not chunk:
-                break
-            enc_data += chunk
-            remain_packet_size -= len(chunk)
-
-        output = json.loads(enc_data.decode('UTF-8'))
-
-        log.debug(output)
-        return output
+    def _read_some(self, size: int) -> bytes:
+        return self.socket.recv(size)

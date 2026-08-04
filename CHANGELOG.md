@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [6.5b2] - Unreleased
+
+### Added
+- Cross-platform event subscription with `Event` enum and `@rpc.on()` decorator (PR [#66](https://github.com/Senophyx/Discord-RPC/pull/66) by @SuperZombi)
+- `InvalidEvent` and `InvalidEventType` exceptions exported from the package root
+- `utils.required_url()` for validating required button URLs
+- `examples/rpc-events.py` showing event subscription usage
+
+### Changed
+- IPC reads now preserve the opcode and route responses by nonce through a single background reader
+- Windows imports are now loaded only on Windows; the blocking reader no longer needs `msvcrt` or `win32pipe`
+- URL validation now checks the scheme and host instead of only a prefix
+- `set_activity()` now validates button URLs client-side
+
+### Fixed
+- Invalid method annotations in `_send()` and `_request()` that prevented importing the package
+- Unread `PONG` responses no longer corrupt subsequent RPC requests
+- Incoming `PING` packets are answered with `PONG`
+- Handshake no longer requires a nonce and reads the READY frame directly
+- Event subscription state no longer mixes callback storage with subscription state
+- Failed subscriptions no longer register callbacks locally
+- Reader thread stops after the last unsubscribe and is cleaned up during disconnect
+- `subscribe()` returns `True` for already-subscribed events so stacked handlers work
+- Pipe is marked disconnected when the reader stops idle, allowing reconnect
+- `pyproject.toml` license uses the PEP 621 table so wheel builds succeed
+
 ## [Unreleased]
 
 ### Added
