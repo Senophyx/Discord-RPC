@@ -160,6 +160,7 @@ Attributes:
 - **username** *(str)* — Username.
 - **name** *(str)* — Global display name.
 - **avatar** *(str)* — CDN URL (animated GIF detection supported).
+- **avatar_decoration** *(str)* — CDN URL to the avatar decoration preset, or `""` when not set.
 - **bot** *(bool)* — Whether the user is a bot.
 - **premium_type** *(int)* — Discord Nitro tier.
 
@@ -187,6 +188,7 @@ Attributes:
 - **name** *(str)* — Application name.
 - **description** *(str)* — Application description.
 - **icon** *(str)* — CDN URL to the application icon.
+- **cover** *(str)* — CDN URL to the application cover image (keeps aspect ratio), or `""` when not set.
 - **verified** *(bool)* — Whether the application is verified.
 - **public** *(bool)* — Whether the bot is public.
 
@@ -265,6 +267,24 @@ Fetch application info from Discord API without initializing `RPC`.
 def get_assets(app_id: int) -> list
 ```
 Fetch all uploaded Rich Presence assets from Discord API without initializing `RPC`. Returns a list of asset dicts with `id`, `name`, and `type` keys.
+
+### `utils.valid_url`
+```python
+def valid_url(url) -> str
+```
+Validates an optional URL. Returns the URL unchanged if valid, or `None` if not provided. Raises `InvalidURL` if the URL is not a valid `http://` or `https://` URL.
+
+### `utils.required_url`
+```python
+def required_url(url) -> str
+```
+Validates a required URL. Raises `InvalidURL` if missing or not a valid `http://` or `https://` URL. Used by `set_activity()` to validate button URLs.
+
+### `utils.remove_none`
+```python
+def remove_none(d: dict) -> dict
+```
+Recursively removes `None` values and empty dicts from a dict.
 
 ---
 
