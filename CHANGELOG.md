@@ -7,19 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [6.5b2] - Unreleased
+## [6.5] - 2026-08-05
 
 ### Added
-- Cross-platform event subscription with `Event` enum and `@rpc.on()` decorator (PR [#66](https://github.com/Senophyx/Discord-RPC/pull/66) by @SuperZombi)
+- Cross-platform event subscriptions with `Event` enum and `@rpc.on()` decorator (PR [#66](https://github.com/Senophyx/Discord-RPC/pull/66) by @SuperZombi)
+- `AssetManager` with `RPC.assets` property and `.get()` / `.names` for fetching Discord application assets (PR [#60](https://github.com/Senophyx/Discord-RPC/pull/60) by @SuperZombi)
+- `Asset` object support in `set_activity()` — pass `rpc.assets.get("key")` directly as `large_image` / `small_image`
+- `utils.get_assets(app_id)` function to fetch assets without initializing `RPC`
+- `RPC.connected` read-only property as alias for `self.ipc.connected` (PR [#63](https://github.com/Senophyx/Discord-RPC/pull/63) by @SuperZombi)
 - `InvalidEvent` and `InvalidEventType` exceptions exported from the package root
 - `utils.required_url()` for validating required button URLs
 - `examples/rpc-events.py` showing event subscription usage
+- `User.avatar_decoration` and `Application.cover` CDN URLs (PR [#67](https://github.com/Senophyx/Discord-RPC/pull/67) by @SuperZombi)
 
 ### Changed
 - IPC reads now preserve the opcode and route responses by nonce through a single background reader
 - Windows imports are now loaded only on Windows; the blocking reader no longer needs `msvcrt` or `win32pipe`
 - URL validation now checks the scheme and host instead of only a prefix
 - `set_activity()` now validates button URLs client-side
+- Bumped GitHub Actions versions: `checkout@v4→v6`, `setup-python@v4→v6` (PR [#62](https://github.com/Senophyx/Discord-RPC/pull/62) by @SuperZombi)
+- Link badges in `README.md` now point to local `CHANGELOG.md` and `DOCS.md` instead of `senophyx.id`
+- `DOCS.md` documentation URL in `pyproject.toml` updated to point to GitHub
 
 ### Fixed
 - Invalid method annotations in `_send()` and `_request()` that prevented importing the package
@@ -32,23 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `subscribe()` returns `True` for already-subscribed events so stacked handlers work
 - Pipe is marked disconnected when the reader stops idle, allowing reconnect
 - `pyproject.toml` license uses the PEP 621 table so wheel builds succeed
-
-## [Unreleased]
-
-### Added
-- `AssetManager` with `RPC.assets` property and `.get()` / `.names` for fetching Discord application assets (PR [#60](https://github.com/Senophyx/Discord-RPC/pull/60) by @SuperZombi)
-- `Asset` object support in `set_activity()` — pass `rpc.assets.get("key")` directly as `large_image` / `small_image`
-- `utils.get_assets(app_id)` function to fetch assets without initializing `RPC`
-- `RPC.connected` read-only property as alias for `self.ipc.connected` (PR [#63](https://github.com/Senophyx/Discord-RPC/pull/63) by @SuperZombi)
-
-### Changed
-- Bumped GitHub Actions versions: `checkout@v4→v6`, `setup-python@v4→v6` (PR [#62](https://github.com/Senophyx/Discord-RPC/pull/62) by @SuperZombi)
-- Link badges in `README.md` now point to local `CHANGELOG.md` and `DOCS.md` instead of `senophyx.id`
-- `DOCS.md` documentation URL in `pyproject.toml` updated to point to GitHub
-
-### Fixed
 - Indentation in `examples/assets.py` corrected to 4 spaces
 - `User.__str__`, `Application.__str__`, `Asset.__str__`, and `Asset.__repr__` reformatted to multi-line for codebase consistency
+
+### Documentation
+- Added `avatar_decoration`, `cover`, URL validation helpers, and `remove_none` to `DOCS.md`
 
 ## [6.0] - 2026-07-21
 
