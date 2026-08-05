@@ -9,7 +9,7 @@ version = "6.5b2"
 ###################
 description = "A Python wrapper for the Discord RPC API"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { file = "LICENSE" }
 authors = [{ name = "Senophyx", email = "contact@senophyx.id" }]
 keywords = ["Discord", "rpc", "discord rpc"]
@@ -18,7 +18,6 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: End Users/Desktop",
   "Intended Audience :: Other Audience",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
