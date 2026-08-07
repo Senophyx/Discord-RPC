@@ -56,13 +56,9 @@ Big thanks for contributors who help this project keep updated, and maintained.
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=senophyx%2Fdiscord-rpc&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=senophyx/discord-rpc&type=date&theme=dark&legend=top-left&sealed_token=uu2zqPWW0p8zaLh9lqh_32TdJAp17mWtREPUn3CEhC4xj42Dye688fcI2cnfAOIjc9YTBSDhDQOgmXTrBggrdQ245zTqpLOjoK-6ibVbj759og0FMFuTIiOVoREccVr14mHrS-4rxokOUQhl4WyUUwTfgTWQH3ckQbFI8hozcIEcm7akwCCRsrE-1m2a" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=senophyx/discord-rpc&type=date&legend=top-left&sealed_token=uu2zqPWW0p8zaLh9lqh_32TdJAp17mWtREPUn3CEhC4xj42Dye688fcI2cnfAOIjc9YTBSDhDQOgmXTrBggrdQ245zTqpLOjoK-6ibVbj759og0FMFuTIiOVoREccVr14mHrS-4rxokOUQhl4WyUUwTfgTWQH3ckQbFI8hozcIEcm7akwCCRsrE-1m2a" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=senophyx/discord-rpc&type=date&legend=top-left&sealed_token=uu2zqPWW0p8zaLh9lqh_32TdJAp17mWtREPUn3CEhC4xj42Dye688fcI2cnfAOIjc9YTBSDhDQOgmXTrBggrdQ245zTqpLOjoK-6ibVbj759og0FMFuTIiOVoREccVr14mHrS-4rxokOUQhl4WyUUwTfgTWQH3ckQbFI8hozcIEcm7akwCCRsrE-1m2a" />
- </picture>
-</a>
+<img src='media/star-history-202687.png' alt='Discord-RPC star history 2026-08-07'>
+
+> Last updated 2026-08-07
 
 ## Licence & Copyright
 
