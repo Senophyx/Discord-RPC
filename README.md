@@ -6,7 +6,7 @@
 
 # Discord RPC
 
-<img src='https://raw.githubusercontent.com/Senophyx/Discord-RPC/main/media/preview.png' style='width: 30%;' alt='Dicord-RPC preview'>
+<img src='media/preview.png' style='width: 30%;' alt='Dicord-RPC preview'>
 
 A Python wrapper for the Discord RPC API that allows you to create your own custom Rich Presence.
 
